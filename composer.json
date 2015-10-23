@@ -1,0 +1,14 @@
+{
+    "name": "argentum88/owl-client",
+
+    "require": {
+        "php": ">=5.5",
+        "ext-phalcon": "2.0.*"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Client\\": "src/"
+        }
+    }
+}
