@@ -18,8 +18,8 @@ class ClientController extends ControllerBase
         if ($response['success']) {
 
             $this->dispatcher->forward([
-                    'controller' => 'books'/*$response['controller']*/,
-                    'action'     => 'index'/*$response['action']*/,
+                    'controller' => $response['controller'],
+                    'action'     => $response['action'],
                     'params'     => [$response]
                 ]);
 
