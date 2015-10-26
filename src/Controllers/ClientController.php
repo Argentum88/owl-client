@@ -36,16 +36,16 @@ class ClientController extends ControllerBase
     public function clearNginxCacheAction()
     {
         $this->view->disable();
-        touch($this->config->clearCacheFile);
+        //touch($this->config->clearCacheFile);
     }
 
     public function clearImagesCacheAction()
     {
         $this->view->disable();
-        $imagesCache = $this->config->pathToImagesCache;
-        $res = $this->delTree($imagesCache . 'pathToDir');
+        //$imagesCache = $this->config->pathToImagesCache;
+        //$res = $this->delTree($imagesCache . 'pathToDir');
 
-        var_dump($res);
+        //var_dump($res);
     }
 
     private function delTree($dir) {
