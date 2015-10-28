@@ -36,23 +36,29 @@ class ClientController extends ControllerBase
     public function clearNginxCacheAction()
     {
         $this->view->disable();
-        //touch($this->config->clearCacheFile);
+        $result = touch($this->config->clearCacheFlag);
+
+        if (!$result) {
+            return $this->response->setStatusCode(500, 'Internal Server Error');
+        }
+
+        return $this->response->setStatusCode(200, 'OK');
     }
 
     public function clearImagesCacheAction()
     {
         $this->view->disable();
-        //$imagesCache = $this->config->pathToImagesCache;
-        //$res = $this->delTree($imagesCache . 'pathToDir');
+        /*$imagesCache = $this->config->pathToImagesCache;
 
-        //var_dump($res);
-    }
+        $urls = $this->request->getPost('url');
+        foreach ($urls as $url) {
+            $result = unlink($imagesCache . $url);
 
-    private function delTree($dir) {
-        $files = array_diff(scandir($dir), array('.','..'));
-        foreach ($files as $file) {
-            (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+            if (!$result) {
+                return $this->response->setStatusCode(500, 'Internal Server Error');
+            }
         }
-        return rmdir($dir);
+
+        return $this->response->setStatusCode(200, 'OK');*/
     }
 }
