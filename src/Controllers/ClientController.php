@@ -3,7 +3,7 @@
 namespace Client\Controllers;
 
 use Client\Library\OwlRequester;
-use Core\Debugger;
+use Client\Library\Debugger;
 use Phalcon\Mvc\View;
 
 class ClientController extends ControllerBase
