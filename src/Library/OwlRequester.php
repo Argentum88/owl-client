@@ -35,8 +35,8 @@ class OwlRequester
             return $response;
         }
 
-        /** @var Urls $urls */
-        $urls = Urls::findFirst([
+        /** @var \Contents $urls */
+        $urls = \Contents::findFirst([
                 'url = :url:',
                 'bind' => [
                     'url' => $url
