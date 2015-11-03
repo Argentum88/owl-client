@@ -2,6 +2,7 @@
 
 namespace Client\Library;
 
+use Client\Models\Contents;
 use Client\Library\Debugger;
 use cURL\Request;
 use Phalcon\Debug;
@@ -35,8 +36,8 @@ class OwlRequester
             return $response;
         }
 
-        /** @var \Contents $urls */
-        $urls = \Contents::findFirst([
+        /** @var Contents $urls */
+        $urls = Contents::findFirst([
                 'url = :url:',
                 'bind' => [
                     'url' => $url
