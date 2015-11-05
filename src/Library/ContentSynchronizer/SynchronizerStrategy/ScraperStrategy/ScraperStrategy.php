@@ -60,53 +60,36 @@ class ScraperStrategy extends SynchronizerStrategy
 
     protected function getUrls()
     {
-        $this->log->info('Начали');
-
         $response = (new \Client\Library\OwlRequester())->request('/');
         $response = (new \Client\Library\OwlRequester())->request($response['static_urls'][ScraperStrategy::TYPE_BOOKS]);
 
-        $urls = new Urls();
-        $urls->url = '/';
-        $urls->state = Urls::OPEN;
-        $urls->type = Urls::CONTENT;
-        $urls->save();
-        $this->log->info('сохранили урл главной');
+        if ($this->createUrl('/')) {
+            $this->log->info('сохранили урл главной');
+        }
 
-        $urls = new Urls();
-        $urls->url = $response['static_urls'][ScraperStrategy::TYPE_BOOKS];
-        $urls->state = Urls::OPEN;
-        $urls->type = Urls::CONTENT;
-        $urls->save();
-        $this->log->info('сохранили урл списка книг');
+        if ($this->createUrl($response['static_urls'][ScraperStrategy::TYPE_BOOKS])) {
+            $this->log->info('сохранили урл списка книг');
+        }
 
         $classIds = array_keys($response['intersects']['classes']);
         foreach ($classIds as $classId) {
-            $urls = new Urls();
-            $urls->url = $response['classes'][$classId]['url'];
-            $urls->state = Urls::OPEN;
-            $urls->type = Urls::CONTENT;
-            $urls->save();
-            $this->log->info('сохранили урл класса');
+            if ($this->createUrl($response['classes'][$classId]['url'])) {
+                $this->log->info('сохранили урл класса');
+            }
         }
 
         $subjectIds = array_keys($response['intersects']['subjects']);
         foreach ($subjectIds as $subjectId) {
-            $urls = new Urls();
-            $urls->url = $response['subjects'][$subjectId]['url'];
-            $urls->state = Urls::OPEN;
-            $urls->type = Urls::CONTENT;
-            $urls->save();
-            $this->log->info('сохранили урл предмета');
+            if ($this->createUrl($response['subjects'][$subjectId]['url'])) {
+                $this->log->info('сохранили урл предмета');
+            }
         }
 
         foreach ($response['intersects']['classes'] as $class) {
-            foreach ($class as $ClassSubject) {
-                $urls = new Urls();
-                $urls->url = $ClassSubject['url'];
-                $urls->state = Urls::OPEN;
-                $urls->type = Urls::CONTENT;
-                $urls->save();
-                $this->log->info('сохранили урл класса/предмета');
+            foreach ($class as $classSubject) {
+                if ($this->createUrl($classSubject['url'])) {
+                    $this->log->info('сохранили урл класса/предмета');
+                }
             }
         }
 
@@ -114,12 +97,9 @@ class ScraperStrategy extends SynchronizerStrategy
         //return;
 
         foreach ($response['books'] as $book) {
-            $bookUrls = new Urls();
-            $bookUrls->url = $book['url'];
-            $bookUrls->state = Urls::OPEN;
-            $bookUrls->type = Urls::CONTENT;
-            $bookUrls->save();
-            $this->log->info('сохранили урл книги');
+            if ($this->createUrl($book['url'])) {
+                $this->log->info('сохранили урл книги');
+            }
 
             $bookResponse = (new \Client\Library\OwlRequester())->request($book['url']);
 
@@ -128,19 +108,13 @@ class ScraperStrategy extends SynchronizerStrategy
             $this->db->commit();
             $this->log->info('сохранили урлы тасков');
         }
-
-        $this->log->info('Закончили');
     }
 
     protected function saveTaskUrls($structure)
     {
         foreach ($structure as $topic) {
             foreach ($topic['tasks'] as $task) {
-                $taskUrls = new Urls();
-                $taskUrls->url = $task['url'];
-                $taskUrls->state = Urls::OPEN;
-                $taskUrls->type = Urls::CONTENT;
-                $taskUrls->save();
+                $this->createUrl($task['url']);
             }
 
             if (!empty($topic['topics'])) {
@@ -149,31 +123,37 @@ class ScraperStrategy extends SynchronizerStrategy
         }
     }
 
+    protected function createUrl($url, $type = Urls::CONTENT)
+    {
+        $urls = new Urls();
+        $urls->url = $url;
+        $urls->state = Urls::OPEN;
+        $urls->type = $type;
+
+        try {
+            if ($urls->create()) {
+                return true;
+            }
+
+            $messages = $urls->getMessages();
+            foreach ($messages as $message) {
+                $this->log->error($message->getMessage());
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            $this->log->error($e->getMessage());
+
+            return false;
+        }
+    }
+
     protected function saveBookImages($books)
     {
         foreach ($books as $book) {
-            /** @var Urls $oldBookImage */
-            $oldBookImage = Urls::findFirst([
-                    'url = :url:',
-                    'bind' => [
-                        'url' => $book['cover']
-                    ]
-                ]);
-
-            if ($oldBookImage) {
-                //$oldBookImage->checked = 1;
-                //$oldBookImage->update();
-                $this->log->info('урл картинки книги существует');
-                continue;
+            if ($this->createUrl($book['cover'], Urls::IMAGE)) {
+                $this->log->info('сохранили урл картинки книги');
             }
-
-            $urls = new Urls();
-            $urls->url = $book['cover'];
-            $urls->state = Urls::OPEN;
-            $urls->type = Urls::IMAGE;
-            //$urls->checked = 1;
-            $urls->save();
-            $this->log->info('сохранили урл картинки книги');
         }
     }
 
@@ -181,28 +161,9 @@ class ScraperStrategy extends SynchronizerStrategy
     {
         foreach ($tasks as $edition) {
             foreach ($edition['task']['images'] as $image) {
-                /** @var Urls $oldBookImage */
-                $oldBookImage = Urls::findFirst([
-                        'url = :url:',
-                        'bind' => [
-                            'url' => $image['url']
-                        ]
-                    ]);
-
-                if ($oldBookImage) {
-                    //$oldBookImage->checked = 1;
-                    //$oldBookImage->update();
-                    $this->log->info('урл картинки таска существует');
-                    continue;
+                if ($this->createUrl($image['url'], Urls::IMAGE)) {
+                    $this->log->info('сохранили урл картинки таска');
                 }
-
-                $urls = new Urls();
-                $urls->url = $image['url'];
-                $urls->state = Urls::OPEN;
-                $urls->type = Urls::IMAGE;
-                //$urls->checked = 1;
-                $urls->save();
-                $this->log->info('сохранили урл картинки таска');
             }
         }
     }
@@ -356,7 +317,7 @@ class ScraperStrategy extends SynchronizerStrategy
                     if ($response->hasError()) {
                         $error = $response->getError()->getMessage();
                     }
-                    
+
                     $this->log->error("Ошибка!!! http code: $httpCode message: $error");
                     $this->db->commit();
                     exit();
