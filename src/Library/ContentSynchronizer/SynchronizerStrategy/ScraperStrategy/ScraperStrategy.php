@@ -111,7 +111,7 @@ class ScraperStrategy extends SynchronizerStrategy
         }
 
         $this->saveBookImages($response['books']);
-        return;
+        //return;
 
         foreach ($response['books'] as $book) {
             $bookUrls = new Urls();
@@ -276,7 +276,11 @@ class ScraperStrategy extends SynchronizerStrategy
                 $urls->state = Urls::ERROR;
                 $urls->save();
 
-                $error = $response->getError()->getMessage();
+                $error = '';
+                if ($response->hasError()) {
+                    $error = $response->getError()->getMessage();
+                }
+
                 $this->log->error("Ошибка!!! http code: $httpCode message: $error");
                 $this->db->commit();
                 exit();
@@ -348,7 +352,11 @@ class ScraperStrategy extends SynchronizerStrategy
                     $urls->state = Urls::ERROR;
                     $urls->save();
 
-                    $error = $response->getError()->getMessage();
+                    $error = '';
+                    if ($response->hasError()) {
+                        $error = $response->getError()->getMessage();
+                    }
+                    
                     $this->log->error("Ошибка!!! http code: $httpCode message: $error");
                     $this->db->commit();
                     exit();
