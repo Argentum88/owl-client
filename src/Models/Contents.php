@@ -11,6 +11,10 @@ class Contents extends \Phalcon\Mvc\Model
 
     public $url;
 
+    public $controller;
+
+    public $action;
+
     public $content;
 
     public $state;

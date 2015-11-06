@@ -209,22 +209,55 @@ class ScraperStrategy extends SynchronizerStrategy
 
                 $content = new Contents();
                 $content->url = $rawUrl;
+                $content->controller = $decodedJson['controller'];
+                $content->action = $decodedJson['action'];
                 $content->content = $json;
                 $content->state = Contents::UPDATING;
                 $content->version = 2;
-                $content->save();
 
-                /** @var Urls $urls */
-                $urls = Urls::findFirst([
-                    'url = :url:',
-                    'bind' => [
-                        'url' => $rawUrl
-                    ]
-                ]);
-                $urls->state = Urls::CLOSE;
-                $urls->save();
+                try {
+                    if ($content->create()) {
+                        $this->log->info('соханили контент');
 
-                $this->log->info('соханили контент');
+                        /** @var Urls $urls */
+                        $urls = Urls::findFirst([
+                                'url = :url:',
+                                'bind' => [
+                                    'url' => $rawUrl
+                                ]
+                            ]);
+                        $urls->state = Urls::CLOSE;
+                        $urls->save();
+                    } else {
+                        $messages = $content->getMessages();
+                        foreach ($messages as $message) {
+                            $this->log->error($message->getMessage());
+                        }
+
+                        /** @var Urls $urls */
+                        $urls = Urls::findFirst([
+                                'url = :url:',
+                                'bind' => [
+                                    'url' => $rawUrl
+                                ]
+                            ]);
+                        $urls->state = Urls::ERROR;
+                        $urls->save();
+                    }
+                } catch (\Exception $e) {
+                    $this->log->error($e->getMessage());
+
+                    /** @var Urls $urls */
+                    $urls = Urls::findFirst([
+                            'url = :url:',
+                            'bind' => [
+                                'url' => $rawUrl
+                            ]
+                        ]);
+                    $urls->state = Urls::CLOSE;
+                    $urls->save();
+                }
+
                 $count++;
             } else {
                 /** @var Urls $urls */

@@ -20,8 +20,6 @@ class Urls extends \Phalcon\Mvc\Model
 
     public $type;
 
-    public $checked;
-
     public $created_at;
 
     public function beforeCreate()
