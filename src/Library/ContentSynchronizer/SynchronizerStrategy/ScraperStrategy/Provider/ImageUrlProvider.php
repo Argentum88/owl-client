@@ -25,10 +25,10 @@ class ImageUrlProvider implements RequestProviderInterface
             return false;
         }
 
-        $url = Di::getDefault()->get('config')->imgHost . $rawUrl;
+        $url = Di::getDefault()->get('config')->imgHost . $rawUrl['url'];
 
         $request = new Request($url);
-        $request->url = $rawUrl;
+        $request->urlId = $rawUrl['urlId'];
         return $request;
     }
 
@@ -48,7 +48,7 @@ class ImageUrlProvider implements RequestProviderInterface
             $url->state = Urls::LOCK;
             $url->update();
 
-            $this->urls[] = $url->url;
+            $this->urls[] = ['url' => $url->url, 'urlId' => $url->id];
         }
     }
 }

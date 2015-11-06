@@ -25,10 +25,11 @@ class ContentUrlProvider implements RequestProviderInterface
             return false;
         }
 
-        $url = (new OwlRequester())->getUrl($rawUrl);
+        $url = (new OwlRequester())->getUrl($rawUrl['url']);
 
         $request = new Request($url);
-        $request->url = $rawUrl;
+        $request->url = $rawUrl['url'];
+        $request->urlId = $rawUrl['urlId'];
         return $request;
     }
 
@@ -48,7 +49,7 @@ class ContentUrlProvider implements RequestProviderInterface
             $url->state = Urls::LOCK;
             $url->update();
 
-            $this->urls[] = $url->url;
+            $this->urls[] = ['url' => $url->url, 'urlId' => $url->id];
         }
     }
 }

@@ -125,6 +125,18 @@ class ScraperStrategy extends SynchronizerStrategy
 
     protected function createUrl($url, $type = Urls::CONTENT)
     {
+        $oldUrls = Urls::findFirst([
+                'url = :url:',
+                'bind' => [
+                    'url' => $url
+                ]
+            ]);
+
+        if ($oldUrls) {
+            $this->log->error("Дубль: $oldUrls");
+            return false;
+        }
+
         $urls = new Urls();
         $urls->url = $url;
         $urls->state = Urls::OPEN;
@@ -197,6 +209,7 @@ class ScraperStrategy extends SynchronizerStrategy
 
             $response = $event->response;
             $rawUrl = $event->request->url;
+            $urlId = $event->request->urlId;
             $httpCode = $response->getInfo(CURLINFO_HTTP_CODE);
 
             if ($httpCode == 200) {
@@ -221,9 +234,9 @@ class ScraperStrategy extends SynchronizerStrategy
 
                         /** @var Urls $urls */
                         $urls = Urls::findFirst([
-                                'url = :url:',
+                                'id = :id:',
                                 'bind' => [
-                                    'url' => $rawUrl
+                                    'id' => $urlId
                                 ]
                             ]);
                         $urls->state = Urls::CLOSE;
@@ -236,9 +249,9 @@ class ScraperStrategy extends SynchronizerStrategy
 
                         /** @var Urls $urls */
                         $urls = Urls::findFirst([
-                                'url = :url:',
+                                'id = :id:',
                                 'bind' => [
-                                    'url' => $rawUrl
+                                    'id' => $urlId
                                 ]
                             ]);
                         $urls->state = Urls::ERROR;
@@ -249,12 +262,12 @@ class ScraperStrategy extends SynchronizerStrategy
 
                     /** @var Urls $urls */
                     $urls = Urls::findFirst([
-                            'url = :url:',
+                            'id = :id:',
                             'bind' => [
-                                'url' => $rawUrl
+                                'id' => $urlId
                             ]
                         ]);
-                    $urls->state = Urls::CLOSE;
+                    $urls->state = Urls::ERROR;
                     $urls->save();
                 }
 
@@ -262,9 +275,9 @@ class ScraperStrategy extends SynchronizerStrategy
             } else {
                 /** @var Urls $urls */
                 $urls = Urls::findFirst([
-                    'url = :url:',
+                    'id = :id:',
                     'bind' => [
-                        'url' => $rawUrl
+                        'id' => $urlId
                     ]
                 ]);
                 $urls->state = Urls::ERROR;
@@ -319,15 +332,15 @@ class ScraperStrategy extends SynchronizerStrategy
                 }
 
                 $response = $event->response;
-                $rawUrl = $event->request->url;
+                $urlId = $event->request->urlId;
                 $httpCode = $response->getInfo(CURLINFO_HTTP_CODE);
 
                 if ($httpCode == 200) {
                     /** @var Urls $urls */
                     $urls = Urls::findFirst([
-                            'url = :url:',
+                            'id = :id:',
                             'bind' => [
-                                'url' => $rawUrl
+                                'id' => $urlId
                             ]
                         ]);
                     $urls->state = Urls::CLOSE;
@@ -338,9 +351,9 @@ class ScraperStrategy extends SynchronizerStrategy
                 } else {
                     /** @var Urls $urls */
                     $urls = Urls::findFirst([
-                            'url = :url:',
+                            'id = :id:',
                             'bind' => [
-                                'url' => $rawUrl
+                                'id' => $urlId
                             ]
                         ]);
                     $urls->state = Urls::ERROR;
