@@ -2,6 +2,7 @@
 
 namespace Client\Tasks;
 
+use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\FileStrategy;
 use Phalcon\CLI\Task;
 use Client\Library\ContentSynchronizer\ContentSynchronizer;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\ScraperStrategy;
@@ -9,19 +10,19 @@ use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Scra
 
 class SyncTask extends Task
 {
-    public function initiallyFillAction()
-    {
-        (new ContentSynchronizer(new ScraperStrategy()))->initiallyFill();
-    }
-
-    public function fullUpdateAction()
+    public function fullUpdateViaScraperAction()
     {
         (new ContentSynchronizer(new ScraperStrategy()))->fullUpdate();
     }
 
-    public function updateAction()
+    public function updateViaScraperAction()
     {
         $urls = ['/'];
         (new ContentSynchronizer(new ScraperStrategy()))->update(['urls' => $urls]);
+    }
+
+    public function fullUpdateViaFileAction()
+    {
+        (new ContentSynchronizer(new FileStrategy()))->fullUpdate();
     }
 }

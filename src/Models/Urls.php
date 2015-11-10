@@ -11,6 +11,7 @@ class Urls extends \Phalcon\Mvc\Model
 
     const CONTENT = 5;
     const IMAGE   = 6;
+    const COMMON  = 7;
 
     public $id;
 

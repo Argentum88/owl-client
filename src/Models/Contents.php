@@ -17,6 +17,8 @@ class Contents extends \Phalcon\Mvc\Model
 
     public $content;
 
+    public $type;
+
     public $state;
 
     public $version;

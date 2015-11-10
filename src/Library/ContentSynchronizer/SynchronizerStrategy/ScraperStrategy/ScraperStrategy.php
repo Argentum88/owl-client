@@ -93,7 +93,7 @@ class ScraperStrategy extends SynchronizerStrategy
             }
         }
 
-        $this->saveBookImages($response['books']);
+        $this->createBookImages($response['books']);
         //return;
 
         foreach ($response['books'] as $book) {
@@ -104,13 +104,13 @@ class ScraperStrategy extends SynchronizerStrategy
             $bookResponse = (new \Client\Library\OwlRequester())->request($book['url']);
 
             $this->db->begin();
-            $this->saveTaskUrls($bookResponse['structure']);
+            $this->createTaskUrls($bookResponse['structure']);
             $this->db->commit();
             $this->log->info('сохранили урлы тасков');
         }
     }
 
-    protected function saveTaskUrls($structure)
+    protected function createTaskUrls($structure)
     {
         foreach ($structure as $topic) {
             foreach ($topic['tasks'] as $task) {
@@ -118,49 +118,12 @@ class ScraperStrategy extends SynchronizerStrategy
             }
 
             if (!empty($topic['topics'])) {
-                $this->saveTaskUrls($topic['topics']);
+                $this->createTaskUrls($topic['topics']);
             }
         }
     }
 
-    protected function createUrl($url, $type = Urls::CONTENT)
-    {
-        $oldUrls = Urls::findFirst([
-                'url = :url:',
-                'bind' => [
-                    'url' => $url
-                ]
-            ]);
-
-        if ($oldUrls) {
-            $this->log->error("Дубль: $oldUrls");
-            return false;
-        }
-
-        $urls = new Urls();
-        $urls->url = $url;
-        $urls->state = Urls::OPEN;
-        $urls->type = $type;
-
-        try {
-            if ($urls->create()) {
-                return true;
-            }
-
-            $messages = $urls->getMessages();
-            foreach ($messages as $message) {
-                $this->log->error($message->getMessage());
-            }
-
-            return false;
-        } catch (\Exception $e) {
-            $this->log->error($e->getMessage());
-
-            return false;
-        }
-    }
-
-    protected function saveBookImages($books)
+    protected function createBookImages($books)
     {
         foreach ($books as $book) {
             if ($this->createUrl($book['cover'], Urls::IMAGE)) {
@@ -169,7 +132,7 @@ class ScraperStrategy extends SynchronizerStrategy
         }
     }
 
-    protected function saveTaskImages($tasks)
+    protected function createTaskImages($tasks)
     {
         foreach ($tasks as $edition) {
             foreach ($edition['task']['images'] as $image) {
@@ -217,7 +180,7 @@ class ScraperStrategy extends SynchronizerStrategy
                 $decodedJson = json_decode($json, true);
 
                 if ($decodedJson['action'] == 'viewTask') {
-                    $this->saveTaskImages($decodedJson['tasks']);
+                    $this->createTaskImages($decodedJson['tasks']);
                 }
 
                 $content = new Contents();
@@ -293,82 +256,6 @@ class ScraperStrategy extends SynchronizerStrategy
                 exit();
             }
         });
-
-        try {
-            $robot->run();
-        } catch (Exception $e) {
-            $this->log->notice($e->getMessage());
-        }
-
-        $this->db->commit();
-    }
-
-    protected function scrapeImageUrls()
-    {
-        $robot = new Robot();
-        $robot->setRequestProvider(new ImageUrlProvider());
-
-        $robot->setQueueSize(3);
-        $robot->setMaximumRPM(6000);
-
-        $queue = $robot->getQueue();
-        $queue->getDefaultOptions()->set([
-                CURLOPT_TIMEOUT        => 60,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_NOBODY         => true,
-                CURLOPT_USERAGENT      => $this->di->get('config')->curlUserAgent,
-            ]);
-
-        $count = 0;
-        $this->db->begin();
-        $queue->addListener('complete', function (Event $event) use (&$count) {
-
-                if ($count > 100) {
-
-                    $this->db->commit();
-                    $this->db->begin();
-                    $count = 0;
-                    $this->log->info('применили транзакцию');
-                }
-
-                $response = $event->response;
-                $urlId = $event->request->urlId;
-                $httpCode = $response->getInfo(CURLINFO_HTTP_CODE);
-
-                if ($httpCode == 200) {
-                    /** @var Urls $urls */
-                    $urls = Urls::findFirst([
-                            'id = :id:',
-                            'bind' => [
-                                'id' => $urlId
-                            ]
-                        ]);
-                    $urls->state = Urls::CLOSE;
-                    $urls->save();
-
-                    $this->log->info('соханили картинку');
-                    $count++;
-                } else {
-                    /** @var Urls $urls */
-                    $urls = Urls::findFirst([
-                            'id = :id:',
-                            'bind' => [
-                                'id' => $urlId
-                            ]
-                        ]);
-                    $urls->state = Urls::ERROR;
-                    $urls->save();
-
-                    $error = '';
-                    if ($response->hasError()) {
-                        $error = $response->getError()->getMessage();
-                    }
-
-                    $this->log->error("Ошибка!!! http code: $httpCode message: $error");
-                    $this->db->commit();
-                    exit();
-                }
-            });
 
         try {
             $robot->run();
