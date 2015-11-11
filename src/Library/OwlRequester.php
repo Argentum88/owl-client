@@ -50,7 +50,7 @@ class OwlRequester
         $common = Contents::findFirst([
                 'url = :url: AND type = :type:',
                 'bind' => [
-                    'url' => '',
+                    'url' => ' ',
                     'type' => Urls::COMMON
                 ]
             ]);

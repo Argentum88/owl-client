@@ -25,7 +25,8 @@ class FileStrategy extends SynchronizerStrategy
         $handle = fopen("data.dat", "r");
         if ($handle) {
             while (($line = fgets($handle)) !== false) {
-                if ($count >= 1000) {
+                $count++;
+                if ($count > 1000) {
                     $this->db->commit();
                     $this->db->begin();
                     $count = 0;
@@ -92,10 +93,10 @@ class FileStrategy extends SynchronizerStrategy
         }
 
         $content = new Contents();
-        $content->url = !empty($data['url']) ? $data['url'] : '';
-        $content->controller = !empty($data['content'][1]['controller']) ? $data['content'][1]['controller'] : '';
-        $content->action = !empty($data['content'][1]['action']) ? $data['content'][1]['action'] : '';
-        $content->content = !empty($data['content'][1]) ? $data['content'][1] : '';
+        $content->url = !empty($data['url']) ? $data['url'] : ' ';
+        $content->controller = !empty($data['content'][1]['controller']) ? $data['content'][1]['controller'] : ' ';
+        $content->action = !empty($data['content'][1]['action']) ? $data['content'][1]['action'] : ' ';
+        $content->content = !empty($data['content'][1]) ? $data['content'][1] : ' ';
         $content->type = $this->typeMap[$data['type']];
         $content->state = Contents::UPDATING;
         $content->version = 2;
