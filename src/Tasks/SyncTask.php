@@ -2,7 +2,7 @@
 
 namespace Client\Tasks;
 
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\FileStrategy;
+use Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy\FileStrategy;
 use Phalcon\CLI\Task;
 use Client\Library\ContentSynchronizer\ContentSynchronizer;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\ScraperStrategy;

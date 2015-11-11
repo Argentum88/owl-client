@@ -1,6 +1,6 @@
 <?php
 
-namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy;
+namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
 use Client\Models\Urls;
