@@ -20,12 +20,21 @@ class FileStrategy extends SynchronizerStrategy
 
     public function fullUpdate(array $params = [])
     {
+        $count = 0;
+        $this->db->begin();
         $handle = fopen("data.dat", "r");
         if ($handle) {
             while (($line = fgets($handle)) !== false) {
+                if ($count >= 1000) {
+                    $this->db->commit();
+                    $this->db->begin();
+                    $count = 0;
+                    $this->log->info('применили транзакцию');
+                }
+
                 $data = json_decode($line, true);
 
-                if ($data['type'] != 'image' && $data['event'] == 'create') {
+                if ($data['type'] != 'image' && $data['event'] == 'update') {
                     $this->createContent($data);
                 } elseif ($data['type'] != 'image' && $data['event'] == 'delete') {
 
@@ -42,8 +51,10 @@ class FileStrategy extends SynchronizerStrategy
             fclose($handle);
         } else {
             $this->log->error("не удалось открыть файл");
+            $this->db->commit();
             exit();
         }
+        $this->db->commit();
 
         $this->setReadyState();
         $this->deleteFirstVersion();
@@ -69,7 +80,7 @@ class FileStrategy extends SynchronizerStrategy
                 'url = :url: AND state = :state: AND type = :type:',
                 'bind' => [
                     'url' => $data['url'],
-                    'state' => Contents::READY,
+                    'state' => Contents::UPDATING,
                     'type' => $this->typeMap[$data['type']]
                 ]
             ]
@@ -81,10 +92,10 @@ class FileStrategy extends SynchronizerStrategy
         }
 
         $content = new Contents();
-        $content->url = $data['url'];
-        $content->controller = $data['controller'];
-        $content->action = $data['action'];
-        $content->content = $data['content'];
+        $content->url = !empty($data['url']) ? $data['url'] : '';
+        $content->controller = !empty($data['content'][1]['controller']) ? $data['content'][1]['controller'] : '';
+        $content->action = !empty($data['content'][1]['action']) ? $data['content'][1]['action'] : '';
+        $content->content = !empty($data['content'][1]) ? $data['content'][1] : '';
         $content->type = $this->typeMap[$data['type']];
         $content->state = Contents::UPDATING;
         $content->version = 2;

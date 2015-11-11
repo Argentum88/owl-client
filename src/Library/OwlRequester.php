@@ -4,6 +4,7 @@ namespace Client\Library;
 
 use Client\Models\Contents;
 use Client\Library\Debugger;
+use Client\Models\Urls;
 use cURL\Request;
 use Phalcon\Debug;
 use Phalcon\Di;
@@ -36,15 +37,27 @@ class OwlRequester
             return $response;
         }
 
-        /** @var Contents $urls */
-        $urls = Contents::findFirst([
-                'url = :url:',
+        /** @var Contents $content */
+        $content = Contents::findFirst([
+                'url = :url: AND type = :type:',
                 'bind' => [
-                    'url' => $url
+                    'url' => $url,
+                    'type' => Urls::CONTENT
                 ]
             ]);
 
-        return json_decode($urls->content, true);
+        /** @var Contents $common */
+        $common = Contents::findFirst([
+                'url = :url: AND type = :type:',
+                'bind' => [
+                    'url' => '',
+                    'type' => Urls::COMMON
+                ]
+            ]);
+
+        $response = json_decode($content->content, true)  + json_decode($common->content, true);
+
+        return $response;
     }
 
     public function getUrl($rawUrl)

@@ -14,7 +14,7 @@ class Routes extends RouterGroup
         $this->setPaths($defaultPaths);
 
         $this->addGet('/{path:.*}', ['action' => 'forward']);
-        $this->add('/cache/images/clear/', ['action' => 'clearImagesCache']);
+        $this->add('/cache/content/update/', ['action' => 'updateContentCache']);
         $this->add('/cache/nginx/clear/', ['action' => 'clearNginxCache']);
     }
 }

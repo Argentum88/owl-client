@@ -45,20 +45,10 @@ class ClientController extends ControllerBase
         return $this->response->setStatusCode(200, 'OK');
     }
 
-    public function clearImagesCacheAction()
+    public function updateContentCacheAction()
     {
         $this->view->disable();
-        /*$imagesCache = $this->config->pathToImagesCache;
 
-        $urls = $this->request->getPost('url');
-        foreach ($urls as $url) {
-            $result = unlink($imagesCache . $url);
 
-            if (!$result) {
-                return $this->response->setStatusCode(500, 'Internal Server Error');
-            }
-        }
-
-        return $this->response->setStatusCode(200, 'OK');*/
     }
 }
