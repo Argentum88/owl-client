@@ -18,11 +18,18 @@ class FileStrategy extends SynchronizerStrategy
         'common' => Urls::COMMON
     ];
 
-    public function fullUpdate(array $params = [])
+    protected $file;
+
+    public function __construct($file)
+    {
+        $this->file = $file;
+    }
+
+    public function fullUpdate()
     {
         $count = 0;
         $this->db->begin();
-        $handle = fopen("data.dat", "r");
+        $handle = fopen($this->file, "r");
         if ($handle) {
             while (($line = fgets($handle)) !== false) {
                 $count++;
@@ -64,7 +71,7 @@ class FileStrategy extends SynchronizerStrategy
         $this->scrapeImageUrls();
     }
 
-    public function update(array $params = [])
+    public function update()
     {
 
         $this->setReadyState();

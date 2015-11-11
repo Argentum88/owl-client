@@ -15,7 +15,7 @@ class ScraperStrategy extends SynchronizerStrategy
 {
     const TYPE_BOOKS = 2;
 
-    public function initiallyFill(array $params = [])
+    public function fullUpdate()
     {
         $this->getUrls();
         $this->scrapeContentUrls();
@@ -27,19 +27,7 @@ class ScraperStrategy extends SynchronizerStrategy
         $this->scrapeImageUrls();
     }
 
-    public function fullUpdate(array $params = [])
-    {
-        $this->getUrls();
-        $this->scrapeContentUrls();
-        $this->deleteFilledUrls();
-        $this->setReadyState();
-        $this->deleteFirstVersion();
-        $this->moveSecondVersionToFirst();
-
-        $this->scrapeImageUrls();
-    }
-
-    public function update(array $params = [])
+    public function update()
     {
         $this->db->begin();
         foreach ($params['urls'] as $url) {

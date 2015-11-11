@@ -15,18 +15,13 @@ class ContentSynchronizer extends Injectable
         $this->synchronizerStrategy = $synchronizerStrategy;
     }
 
-    public function initiallyFill(array $params = [])
+    public function fullUpdate()
     {
-        $this->synchronizerStrategy->initiallyFill($params);
+        $this->synchronizerStrategy->fullUpdate();
     }
 
-    public function fullUpdate(array $params = [])
+    public function update()
     {
-        $this->synchronizerStrategy->fullUpdate($params);
-    }
-
-    public function update(array $params = [])
-    {
-        $this->synchronizerStrategy->update($params);
+        $this->synchronizerStrategy->update();
     }
 }

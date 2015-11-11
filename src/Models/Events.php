@@ -4,14 +4,13 @@ namespace Client\Models;
 
 class Events extends \Phalcon\Mvc\Model
 {
-    const FULL_UPDATE_CONTENT  = 1;
-    const UPDATE_CONTENT  = 2;
-    const CLEAR_CACHE = 3;
+    const UPDATE_CONTENT  = 1;
+    const CLEAR_CACHE = 2;
 
-    const OPEN = 4;
-    const PROCESSING = 5;
-    const DONE = 6;
-    const ERROR = 7;
+    const OPEN = 3;
+    const PROCESSING = 4;
+    const DONE = 5;
+    const ERROR = 6;
 
     public $id;
 
