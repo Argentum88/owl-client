@@ -57,9 +57,10 @@ class SyncTask extends Task
             $eventData = json_decode($event->data, true);
             $filePath = $eventData['filePath'];
             $compressedFile = $this->config->tempDir . '/' . time();
-            $uncompressedFile = $compressedFile . '.dat';
-            file_put_contents($compressedFile, fopen($this->config->owl . '/' . $filePath, 'r'));
-            exec("bzip2 -dc $compressedFile > $uncompressedFile");
+            file_put_contents($compressedFile, fopen($this->config->owl . $filePath, 'r'));
+
+            exec("bzip2 -d $compressedFile");
+            $uncompressedFile = $compressedFile;
 
             $this->fullUpdateViaFileAction([3 => $uncompressedFile]);
 

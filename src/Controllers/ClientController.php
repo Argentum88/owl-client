@@ -4,6 +4,7 @@ namespace Client\Controllers;
 
 use Client\Library\OwlRequester;
 use Client\Library\Debugger;
+use Client\Models\Events;
 use Phalcon\Mvc\View;
 
 class ClientController extends ControllerBase
@@ -33,22 +34,17 @@ class ClientController extends ControllerBase
         }
     }
 
-    public function clearNginxCacheAction()
+    public function updateCacheAction()
     {
         $this->view->disable();
-        $result = touch($this->config->clearCacheFlag);
 
-        if (!$result) {
-            return $this->response->setStatusCode(500, 'Internal Server Error');
-        }
+        $patch = $this->request->getPost('patch');
 
+        $event = new Events();
+        $event->state = Events::OPEN;
+        $event->type = Events::UPDATE_CONTENT;
+        $event->data = json_encode(['patch' => $patch]);
+        $event->create();
         return $this->response->setStatusCode(200, 'OK');
-    }
-
-    public function updateContentCacheAction()
-    {
-        $this->view->disable();
-
-
     }
 }
