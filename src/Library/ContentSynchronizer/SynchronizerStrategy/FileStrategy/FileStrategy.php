@@ -46,7 +46,7 @@ class FileStrategy extends SynchronizerStrategy
                     $this->createContent($data);
                 } elseif ($data['type'] != 'image' && $data['event'] == 'delete') {
 
-                } elseif ($data['type'] == 'image' && $data['event'] == 'create') {
+                } elseif ($data['type'] == 'image' && $data['event'] == 'update') {
                     $this->createUrl($data['url'], Urls::IMAGE);
                 } elseif ($data['type'] == 'image' && $data['event'] == 'delete') {
 
