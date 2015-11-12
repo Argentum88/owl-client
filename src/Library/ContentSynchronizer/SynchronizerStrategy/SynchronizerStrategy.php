@@ -18,15 +18,17 @@ abstract class SynchronizerStrategy extends Injectable
 
     protected function setReadyState()
     {
+        $this->log->info('Начали брос статуса обновления');
         $this->db->execute("UPDATE contents SET state = ? WHERE state = ?", [Contents::READY, Contents::UPDATING]);
-        $this->log->info('Сброс статуса обновления');
+        $this->log->info('Сбросили статус обновления');
     }
 
     protected function deleteFirstVersion($all = true)
     {
         if ($all) {
+            $this->log->info('Начали удаление первой версия');
             $this->db->execute("DELETE FROM contents WHERE version = ?", [1]);
-            $this->log->info('Удалена первая версия');
+            $this->log->info('Удалили первую версию');
 
             return;
         }
@@ -70,8 +72,9 @@ abstract class SynchronizerStrategy extends Injectable
 
     protected function moveSecondVersionToFirst()
     {
+        $this->log->info('Начали сброс версии');
         $this->db->execute("UPDATE contents SET version = ? WHERE version = ?", [1, 2]);
-        $this->log->info('Сброс версии');
+        $this->log->info('Сбросили версию');
     }
 
     protected function createUrl($url, $type = Urls::CONTENT)

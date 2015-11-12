@@ -36,7 +36,7 @@ class FileStrategy extends SynchronizerStrategy
                 if ($count > 1000) {
                     $this->db->commit();
                     $this->db->begin();
-                    $count = 0;
+                    $count = 1;
                     $this->log->info('применили транзакцию');
                 }
 
@@ -83,6 +83,7 @@ class FileStrategy extends SynchronizerStrategy
 
     protected function createContent($data)
     {
+        /** @var Contents $oldContent */
         $oldContent = Contents::findFirst(
             [
                 'url = :url: AND state = :state: AND type = :type:',
@@ -95,14 +96,17 @@ class FileStrategy extends SynchronizerStrategy
         );
 
         if ($oldContent) {
-            $this->log->error("Дубль");
+            $oldContentId = $oldContent->id;
+            $this->log->error("Дубль. Контент с id: $oldContentId существует");
             return;
         }
 
+        $decodedContent = !empty($data['content'][1]) ? json_decode($data['content'][1], true) : null;
+
         $content = new Contents();
         $content->url = !empty($data['url']) ? $data['url'] : ' ';
-        $content->controller = !empty($data['content'][1]['controller']) ? $data['content'][1]['controller'] : ' ';
-        $content->action = !empty($data['content'][1]['action']) ? $data['content'][1]['action'] : ' ';
+        $content->controller = !empty($decodedContent['controller']) ? $decodedContent['controller'] : ' ';
+        $content->action = !empty($decodedContent['action']) ? $decodedContent['action'] : ' ';
         $content->content = !empty($data['content'][1]) ? $data['content'][1] : ' ';
         $content->type = $this->typeMap[$data['type']];
         $content->state = Contents::UPDATING;
