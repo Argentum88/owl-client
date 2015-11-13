@@ -12,8 +12,6 @@ use Phalcon\Di\Injectable;
 
 abstract class SynchronizerStrategy extends Injectable
 {
-    abstract public function fullUpdate();
-
     abstract public function update();
 
     protected function setReadyState()

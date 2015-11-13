@@ -11,20 +11,9 @@ use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Scra
 
 class SyncTask extends Task
 {
-    public function fullUpdateViaScraperAction()
-    {
-        (new ContentSynchronizer(new ScraperStrategy()))->fullUpdate();
-    }
-
     public function updateViaScraperAction()
     {
-
-    }
-
-    public function fullUpdateViaFileAction($params)
-    {
-        $file = $params[3];
-        (new ContentSynchronizer(new FileStrategy($file)))->fullUpdate();
+        (new ContentSynchronizer(new ScraperStrategy()))->update();
     }
 
     public function updateViaFileAction($params)
@@ -71,33 +60,9 @@ class SyncTask extends Task
             exec("bzip2 -d $compressedFile");
             $uncompressedFile = $this->config->tempDir . "/$time";
 
-            $updateType = null;
-            $handle = fopen($uncompressedFile, "r");
-            if ($handle) {
-                if (($line = fgets($handle)) !== false) {
-                    $updateType = json_decode($line, true)['event'];
-                }
-                fclose($handle);
-            } else {
-                $this->log->error("Не удалось открыть файл");
-                $event->state = Events::ERROR;
-                $event->save();
-                exit();
-            }
-
-            if ($updateType == 'full-update') {
-                $this->fullUpdateViaFileAction([3 => $uncompressedFile]);
-            } elseif ($updateType == 'update') {
-                $this->updateViaFileAction([3 => $uncompressedFile]);
-            } else {
-                $this->log->error("Неизвестный тип обновления");
-                $event->state = Events::ERROR;
-                $event->save();
-                exit();
-            }
+            $this->updateViaFileAction([3 => $uncompressedFile]);
 
             unlink($uncompressedFile);
-
             $event->state = Events::DONE;
             $event->save();
         }

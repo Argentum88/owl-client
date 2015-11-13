@@ -16,26 +16,18 @@ class FileStrategy extends SynchronizerStrategy
 
     protected $file;
 
+    protected $fullUpdate = false;
+
     public function __construct($file)
     {
         $this->file = $file;
-    }
-
-    public function fullUpdate()
-    {
-        $this->handleFile();
-        $this->setReadyState();
-        $this->deleteFirstVersion();
-        $this->moveSecondVersionToFirst();
-
-        //$this->scrapeImageUrls();
     }
 
     public function update()
     {
         $this->handleFile();
         $this->setReadyState();
-        $this->deleteFirstVersion(false);
+        $this->deleteFirstVersion($this->fullUpdate);
         $this->moveSecondVersionToFirst();
 
         //$this->scrapeImageUrls();
@@ -59,12 +51,12 @@ class FileStrategy extends SynchronizerStrategy
 
                 $data = json_decode($line, true);
 
-                if ($data['type'] != 'image' && $data['event'] == 'update') {
+                if ($data['type'] != 'image' && $data['event'] != 'delete') {
                     $this->createContent($data);
                 } elseif ($data['type'] != 'image' && $data['event'] == 'delete') {
                     $url = !empty($data['url']) ? $data['url'] : ' ';
                     $this->createUrl($url, Urls::CONTENT, Urls::FOR_DELETING);
-                } elseif ($data['type'] == 'image' && $data['event'] == 'update') {
+                } elseif ($data['type'] == 'image' && $data['event'] != 'delete') {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE);
                     }
@@ -72,6 +64,8 @@ class FileStrategy extends SynchronizerStrategy
                     if (file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE, Urls::FOR_DELETING);
                     }
+                } elseif ($data['event'] == 'full-update') {
+                    $this->fullUpdate = true;
                 } else {
                     $this->log->error("операция не поддерживается");
                     continue;

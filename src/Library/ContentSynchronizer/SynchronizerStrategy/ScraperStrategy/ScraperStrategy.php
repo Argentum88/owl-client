@@ -14,7 +14,7 @@ class ScraperStrategy extends SynchronizerStrategy
 {
     const TYPE_BOOKS = 2;
 
-    public function fullUpdate()
+    public function update()
     {
         $this->getUrls();
         $this->scrapeContentUrls();
@@ -24,11 +24,6 @@ class ScraperStrategy extends SynchronizerStrategy
         $this->moveSecondVersionToFirst();
 
         $this->scrapeImageUrls();
-    }
-
-    public function update()
-    {
-
     }
 
     protected function getUrls()
