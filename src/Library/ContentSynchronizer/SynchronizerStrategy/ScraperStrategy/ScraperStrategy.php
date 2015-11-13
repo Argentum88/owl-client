@@ -6,7 +6,6 @@ use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy
 use Client\Models\Urls;
 use Client\Models\Contents;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider\ContentUrlProvider;
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider\ImageUrlProvider;
 use cURL\Exception;
 use cURL\Robot;
 use cURL\Event;

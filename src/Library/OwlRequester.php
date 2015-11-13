@@ -3,7 +3,6 @@
 namespace Client\Library;
 
 use Client\Models\Contents;
-use Client\Library\Debugger;
 use Client\Models\Urls;
 use cURL\Request;
 use Phalcon\Debug;
@@ -32,27 +31,45 @@ class OwlRequester
                 ->set(CURLOPT_USERAGENT, $this->di->get('config')->curlUserAgent);
 
             $response = $request->send();
-            $response = json_decode($response->getContent(), true);
+            $content = json_decode($response->getContent(), true);
 
-            return $response;
+            $url = $this->getUrl('', 'common');
+            $request = new Request($url);
+            $request->getOptions()
+                ->set(CURLOPT_TIMEOUT, 8)
+                ->set(CURLOPT_RETURNTRANSFER, true)
+                ->set(CURLOPT_USERAGENT, $this->di->get('config')->curlUserAgent);
+
+            $response = $request->send();
+            $common = json_decode($response->getContent(), true);
+
+            return $content + $common;
         }
 
         /** @var Contents $content */
         $content = Contents::findFirst([
-                'url = :url: AND type = :type:',
+                'url = :url: AND state = :state: AND type = :type:',
                 'bind' => [
                     'url' => $url,
+                    'state' => Contents::READY,
                     'type' => Urls::CONTENT
-                ]
+                ],
+                'order' => 'created_at DESC'
             ]);
+
+        if (!$content) {
+            return ['success' => false];
+        }
 
         /** @var Contents $common */
         $common = Contents::findFirst([
-                'url = :url: AND type = :type:',
+                'url = :url: AND state = :state: AND type = :type:',
                 'bind' => [
                     'url' => ' ',
+                    'state' => Contents::READY,
                     'type' => Urls::COMMON
-                ]
+                ],
+                'order' => 'created_at DESC'
             ]);
 
         $response = json_decode($content->content, true)  + json_decode($common->content, true);
@@ -60,7 +77,7 @@ class OwlRequester
         return $response;
     }
 
-    public function getUrl($rawUrl)
+    public function getUrl($rawUrl, $type = 'content')
     {
         $clientId = $this->di->get('config')->clientId;
         $secretKey = $this->di->get('config')->secretKey;
@@ -72,6 +89,6 @@ class OwlRequester
                 'sig' => md5($string)
             ]);
 
-        return $this->di->get('config')->owl . "/api/1.0/?$params";
+        return $this->di->get('config')->owl . "/api/1.0/$type/?$params";
     }
 }

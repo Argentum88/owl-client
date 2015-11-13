@@ -46,7 +46,8 @@ class SyncTask extends Task
             'state = :state:',
             'bind' => [
                 'state' => Events::OPEN,
-            ]
+            ],
+            'order' => 'created_at ASC'
         ]);
 
         if ( $event && ($event->type == Events::UPDATE_CONTENT) ) {
@@ -55,12 +56,13 @@ class SyncTask extends Task
             $event->save();
 
             $eventData = json_decode($event->data, true);
-            $filePath = $eventData['filePath'];
-            $compressedFile = $this->config->tempDir . '/' . time();
-            file_put_contents($compressedFile, fopen($this->config->owl . $filePath, 'r'));
+            $patch = $eventData['patch'];
+            $time = time();
+            $compressedFile = $this->config->tempDir . "/$time.bz2";
+            file_put_contents($compressedFile, fopen($this->config->owl . $patch, 'r'));
 
             exec("bzip2 -d $compressedFile");
-            $uncompressedFile = $compressedFile;
+            $uncompressedFile = $this->config->tempDir . "/$time";
 
             $this->fullUpdateViaFileAction([3 => $uncompressedFile]);
 

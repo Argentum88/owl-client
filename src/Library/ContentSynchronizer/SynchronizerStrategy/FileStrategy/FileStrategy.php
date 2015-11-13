@@ -5,10 +5,6 @@ namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
 use Client\Models\Urls;
 use Client\Models\Contents;
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider\ImageUrlProvider;
-use cURL\Exception;
-use cURL\Robot;
-use cURL\Event;
 
 class FileStrategy extends SynchronizerStrategy
 {
@@ -68,7 +64,7 @@ class FileStrategy extends SynchronizerStrategy
         $this->deleteFirstVersion();
         $this->moveSecondVersionToFirst();
 
-        $this->scrapeImageUrls();
+        //$this->scrapeImageUrls();
     }
 
     public function update()
@@ -78,7 +74,7 @@ class FileStrategy extends SynchronizerStrategy
         $this->deleteFirstVersion(false);
         $this->moveSecondVersionToFirst();
 
-        $this->scrapeImageUrls();
+        //$this->scrapeImageUrls();
     }
 
     protected function createContent($data)
