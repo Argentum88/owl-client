@@ -62,7 +62,8 @@ class FileStrategy extends SynchronizerStrategy
                 if ($data['type'] != 'image' && $data['event'] == 'update') {
                     $this->createContent($data);
                 } elseif ($data['type'] != 'image' && $data['event'] == 'delete') {
-                    $this->createUrl($data['url'], Urls::CONTENT, Urls::FOR_DELETING);
+                    $url = !empty($data['url']) ? $data['url'] : ' ';
+                    $this->createUrl($url, Urls::CONTENT, Urls::FOR_DELETING);
                 } elseif ($data['type'] == 'image' && $data['event'] == 'update') {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE);
@@ -92,7 +93,7 @@ class FileStrategy extends SynchronizerStrategy
             [
                 'url = :url: AND state = :state: AND type = :type:',
                 'bind' => [
-                    'url' => $data['url'],
+                    'url' => !empty($data['url']) ? $data['url'] : ' ',
                     'state' => Contents::UPDATING,
                     'type' => $this->typeMap[$data['type']]
                 ]

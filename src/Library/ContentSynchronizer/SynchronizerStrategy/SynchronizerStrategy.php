@@ -79,17 +79,21 @@ abstract class SynchronizerStrategy extends Injectable
 
     protected function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_UPDATING)
     {
+        /** @var Urls $oldUrls */
         $oldUrls = Urls::findFirst(
             [
-                'url = :url:',
+                'url = :url: AND type = :type: AND action = :action:',
                 'bind' => [
-                    'url' => $url
+                    'url' => $url,
+                    'type' => $type,
+                    'action' => $action
                 ]
             ]
         );
 
         if ($oldUrls) {
-            $this->log->error("Дубль: $url");
+            $oldUrlsId = $oldUrls->id;
+            $this->log->error("Дубль: Урл с id: $oldUrlsId существует");
             return false;
         }
 

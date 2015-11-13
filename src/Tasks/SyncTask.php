@@ -85,7 +85,7 @@ class SyncTask extends Task
                 exit();
             }
 
-            if ($updateType == 'full_update') {
+            if ($updateType == 'full-update') {
                 $this->fullUpdateViaFileAction([3 => $uncompressedFile]);
             } elseif ($updateType == 'update') {
                 $this->updateViaFileAction([3 => $uncompressedFile]);
@@ -95,6 +95,8 @@ class SyncTask extends Task
                 $event->save();
                 exit();
             }
+
+            unlink($uncompressedFile);
 
             $event->state = Events::DONE;
             $event->save();

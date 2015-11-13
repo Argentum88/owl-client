@@ -34,11 +34,12 @@ class ImageUrls extends Urls implements RequestProviderInterface
     {
         /** @var Urls[] $urls */
         $urls = Urls::find([
-                'state = :state: AND type = :type:',
+                'state = :state: AND type = :type: AND action = :action:',
                 'limit' => 1000,
                 'bind' => [
                     'state' => Urls::OPEN,
-                    'type'  => Urls::IMAGE
+                    'type'  => Urls::IMAGE,
+                    'action' => Urls::FOR_UPDATING
                 ]
             ]);
 
