@@ -1,13 +1,11 @@
 <?php
 
-namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider;
+namespace Client\Models;
 
-use Client\Models\Urls;
 use cURL\RequestProviderInterface;
 use cURL\Request;
-use Phalcon\Di;
 
-class ImageUrlProvider implements RequestProviderInterface
+class ImageUrls extends Urls implements RequestProviderInterface
 {
     protected $urls = [];
 
@@ -25,7 +23,7 @@ class ImageUrlProvider implements RequestProviderInterface
             return false;
         }
 
-        $url = Di::getDefault()->get('config')->imgHost . $rawUrl['url'];
+        $url = $this->config->imgHost . $rawUrl['url'];
 
         $request = new Request($url);
         $request->urlId = $rawUrl['urlId'];

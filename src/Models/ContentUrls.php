@@ -1,13 +1,11 @@
 <?php
 
-namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider;
+namespace Client\Models;
 
-use Client\Models\Urls;
-use Client\Library\OwlRequester;
 use cURL\RequestProviderInterface;
 use cURL\Request;
 
-class ContentUrlProvider implements RequestProviderInterface
+class ContentUrls extends Urls implements RequestProviderInterface
 {
     protected $urls = [];
 
@@ -25,7 +23,7 @@ class ContentUrlProvider implements RequestProviderInterface
             return false;
         }
 
-        $url = (new OwlRequester())->getUrl($rawUrl['url']);
+        $url = (new Owl())->getUrl($rawUrl['url']);
 
         $request = new Request($url);
         $request->url = $rawUrl['url'];

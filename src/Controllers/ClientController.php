@@ -2,7 +2,7 @@
 
 namespace Client\Controllers;
 
-use Client\Library\OwlRequester;
+use Client\Models\Owl;
 use Client\Library\Debugger;
 use Client\Models\Events;
 use Phalcon\Mvc\View;
@@ -12,7 +12,7 @@ class ClientController extends ControllerBase
     public function forwardAction()
     {
         $uri = $this->request->get('_url') ? $this->request->get('_url') : '/';
-        $response = (new OwlRequester())->request($uri, $this->config->useOwlServer);
+        $response = (new Owl())->request($uri, $this->config->useOwlServer);
 
         PH_DEBUG ? Debugger::dumpBar($response) : null;
 

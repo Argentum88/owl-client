@@ -5,7 +5,7 @@ namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrateg
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
 use Client\Models\Urls;
 use Client\Models\Contents;
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider\ContentUrlProvider;
+use Client\Models\ContentUrls;
 use cURL\Exception;
 use cURL\Robot;
 use cURL\Event;
@@ -133,7 +133,7 @@ class ScraperStrategy extends SynchronizerStrategy
     protected function scrapeContentUrls()
     {
         $robot = new Robot();
-        $robot->setRequestProvider(new ContentUrlProvider());
+        $robot->setRequestProvider(new ContentUrls());
 
         $robot->setQueueSize(10);
         $robot->setMaximumRPM(600);

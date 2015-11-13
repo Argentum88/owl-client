@@ -2,7 +2,7 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy;
 
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Provider\ImageUrlProvider;
+use Client\Models\ImageUrls;
 use Client\Models\Contents;
 use Client\Models\Urls;
 use cURL\Event;
@@ -119,7 +119,7 @@ abstract class SynchronizerStrategy extends Injectable
     protected function scrapeImageUrls()
     {
         $robot = new Robot();
-        $robot->setRequestProvider(new ImageUrlProvider());
+        $robot->setRequestProvider(new ImageUrls());
 
         $robot->setQueueSize(3);
         $robot->setMaximumRPM(6000);
