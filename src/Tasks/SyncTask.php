@@ -18,8 +18,7 @@ class SyncTask extends Task
 
     public function updateViaScraperAction()
     {
-        $urls = ['/'];
-        (new ContentSynchronizer(new ScraperStrategy()))->update(['urls' => $urls]);
+
     }
 
     public function fullUpdateViaFileAction($params)
@@ -28,17 +27,25 @@ class SyncTask extends Task
         (new ContentSynchronizer(new FileStrategy($file)))->fullUpdate();
     }
 
+    public function updateViaFileAction($params)
+    {
+        $file = $params[3];
+        (new ContentSynchronizer(new FileStrategy($file)))->update();
+    }
+
     public function mainAction()
     {
         $event = Events::findFirst([
-                'state = :state:',
+                'state = :state1: OR state = :state2:',
                 'bind' => [
-                    'state' => Events::PROCESSING,
+                    'state1' => Events::PROCESSING,
+                    'state2' => Events::ERROR,
                 ]
             ]);
 
         if ($event) {
-            return;
+            $this->log->error("Не позволено");
+            exit();
         }
 
         /** @var Events $event */
@@ -64,7 +71,30 @@ class SyncTask extends Task
             exec("bzip2 -d $compressedFile");
             $uncompressedFile = $this->config->tempDir . "/$time";
 
-            $this->fullUpdateViaFileAction([3 => $uncompressedFile]);
+            $updateType = null;
+            $handle = fopen($uncompressedFile, "r");
+            if ($handle) {
+                if (($line = fgets($handle)) !== false) {
+                    $updateType = json_decode($line, true)['event'];
+                }
+                fclose($handle);
+            } else {
+                $this->log->error("Не удалось открыть файл");
+                $event->state = Events::ERROR;
+                $event->save();
+                exit();
+            }
+
+            if ($updateType == 'full_update') {
+                $this->fullUpdateViaFileAction([3 => $uncompressedFile]);
+            } elseif ($updateType == 'update') {
+                $this->updateViaFileAction([3 => $uncompressedFile]);
+            } else {
+                $this->log->error("Неизвестный тип обновления");
+                $event->state = Events::ERROR;
+                $event->save();
+                exit();
+            }
 
             $event->state = Events::DONE;
             $event->save();

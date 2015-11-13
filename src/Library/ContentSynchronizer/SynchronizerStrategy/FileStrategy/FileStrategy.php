@@ -23,10 +23,31 @@ class FileStrategy extends SynchronizerStrategy
 
     public function fullUpdate()
     {
-        $count = 0;
-        $this->db->begin();
+        $this->handleFile();
+        $this->setReadyState();
+        $this->deleteFirstVersion();
+        $this->moveSecondVersionToFirst();
+
+        //$this->scrapeImageUrls();
+    }
+
+    public function update()
+    {
+        $this->handleFile();
+        $this->setReadyState();
+        $this->deleteFirstVersion(false);
+        $this->moveSecondVersionToFirst();
+
+        //$this->scrapeImageUrls();
+    }
+
+    protected function handleFile()
+    {
         $handle = fopen($this->file, "r");
         if ($handle) {
+            $count = 0;
+            $this->db->begin();
+
             while (($line = fgets($handle)) !== false) {
                 $count++;
                 if ($count > 1000) {
@@ -53,28 +74,11 @@ class FileStrategy extends SynchronizerStrategy
             }
 
             fclose($handle);
+            $this->db->commit();
         } else {
             $this->log->error("не удалось открыть файл");
-            $this->db->commit();
             exit();
         }
-        $this->db->commit();
-
-        $this->setReadyState();
-        $this->deleteFirstVersion();
-        $this->moveSecondVersionToFirst();
-
-        //$this->scrapeImageUrls();
-    }
-
-    public function update()
-    {
-
-        $this->setReadyState();
-        $this->deleteFirstVersion(false);
-        $this->moveSecondVersionToFirst();
-
-        //$this->scrapeImageUrls();
     }
 
     protected function createContent($data)

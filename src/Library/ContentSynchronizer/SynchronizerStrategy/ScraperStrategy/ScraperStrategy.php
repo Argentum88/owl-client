@@ -28,21 +28,7 @@ class ScraperStrategy extends SynchronizerStrategy
 
     public function update()
     {
-        $this->db->begin();
-        foreach ($params['urls'] as $url) {
-            $urls = new Urls();
-            $urls->url = $url;
-            $urls->state = Urls::OPEN;
-            $urls->type = Urls::CONTENT;
-            $urls->save();
-        }
-        $this->db->commit();
 
-        $this->scrapeContentUrls();
-        $this->deleteFilledUrls();
-        $this->setReadyState();
-        $this->deleteFirstVersion(false);
-        $this->moveSecondVersionToFirst();
     }
 
     protected function getUrls()
