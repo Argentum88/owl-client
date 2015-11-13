@@ -77,7 +77,7 @@ abstract class SynchronizerStrategy extends Injectable
         $this->log->info('Сбросили версию');
     }
 
-    protected function createUrl($url, $type = Urls::CONTENT)
+    protected function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_UPDATING)
     {
         $oldUrls = Urls::findFirst(
             [
@@ -93,10 +93,11 @@ abstract class SynchronizerStrategy extends Injectable
             return false;
         }
 
-        $urls        = new Urls();
-        $urls->url   = $url;
-        $urls->state = Urls::OPEN;
-        $urls->type  = $type;
+        $urls         = new Urls();
+        $urls->url    = $url;
+        $urls->state  = Urls::OPEN;
+        $urls->type   = $type;
+        $urls->action = $action;
 
         try {
             if ($urls->create()) {
