@@ -149,6 +149,7 @@ class FileStrategy extends SynchronizerStrategy
             if ($contentForDeleting) {
                 $contentForDeleting->delete();
             }
+            $url->delete();
         }
     }
 
@@ -167,7 +168,8 @@ class FileStrategy extends SynchronizerStrategy
         );
 
         foreach ($urls as $url) {
-            unlink($this->config->imageCacheDir . $url->url);
+            unlink($this->config->imagesCacheDir . $url->url);
+            $url->delete();
         }
     }
 }

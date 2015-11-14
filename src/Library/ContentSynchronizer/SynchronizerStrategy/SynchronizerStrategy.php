@@ -165,8 +165,7 @@ abstract class SynchronizerStrategy extends Injectable
                             ]
                         ]
                     );
-                    $urls->state = Urls::CLOSE;
-                    $urls->save();
+                    $urls->delete();
 
                     $this->log->info('соханили картинку');
                     $count++;
