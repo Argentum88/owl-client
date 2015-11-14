@@ -29,6 +29,8 @@ class FileStrategy extends SynchronizerStrategy
         $this->setReadyState();
         $this->deleteFirstVersion($this->fullUpdate);
         $this->moveSecondVersionToFirst();
+        $this->deleteContents();
+        $this->deleteImages();
 
         //$this->scrapeImageUrls();
     }
@@ -116,6 +118,56 @@ class FileStrategy extends SynchronizerStrategy
             foreach ($messages as $message) {
                 $this->log->error($message->getMessage());
             }
+        }
+    }
+
+    protected function deleteContents()
+    {
+        /** @var Urls[] $urls */
+        $urls = Urls::find(
+            [
+                'state = :state: AND (type = :type1: OR type = :type2:) AND action = :action:',
+                'bind' => [
+                    'state'  => Urls::OPEN,
+                    'type1'   => Urls::CONTENT,
+                    'type2'  => Urls::COMMON,
+                    'action' => Urls::FOR_DELETING
+                ]
+            ]
+        );
+
+        foreach ($urls as $url) {
+            $contentForDeleting = Contents::findFirst(
+                [
+                    'url = :url:',
+                    'bind' => [
+                        'url'  => $url->url
+                    ]
+                ]
+            );
+
+            if ($contentForDeleting) {
+                $contentForDeleting->delete();
+            }
+        }
+    }
+
+    protected function deleteImages()
+    {
+        /** @var Urls[] $urls */
+        $urls = Urls::find(
+            [
+                'state = :state: AND type = :type: AND action = :action:',
+                'bind' => [
+                    'state'  => Urls::OPEN,
+                    'type'   => Urls::IMAGE,
+                    'action' => Urls::FOR_DELETING
+                ]
+            ]
+        );
+
+        foreach ($urls as $url) {
+            unlink($this->config->imageCacheDir . $url->url);
         }
     }
 }
