@@ -53,12 +53,12 @@ class FileStrategy extends SynchronizerStrategy
 
                 $data = json_decode($line, true);
 
-                if (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] != 'delete') {
+                if (($data['type'] == 'content' || $data['type'] == 'common') && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     $this->createContent($data);
                 } elseif (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] == 'delete') {
                     $url = !empty($data['url']) ? $data['url'] : ' ';
                     $this->createUrl($url, Urls::CONTENT, Urls::FOR_DELETING);
-                } elseif ($data['type'] == 'image' && $data['event'] != 'delete') {
+                } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE);
                     }
