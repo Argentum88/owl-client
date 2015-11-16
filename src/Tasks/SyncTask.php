@@ -13,13 +13,18 @@ class SyncTask extends Task
 {
     public function updateViaScraperAction()
     {
-        (new ContentSynchronizer(new ScraperStrategy()))->update();
+        (new ContentSynchronizer(new ScraperStrategy()))->updateContent();
     }
 
     public function updateViaFileAction($params)
     {
         $file = $params[3];
-        (new ContentSynchronizer(new FileStrategy($file)))->update();
+        (new ContentSynchronizer(new FileStrategy($file)))->updateContent();
+    }
+
+    public function scrapeImageAction()
+    {
+        (new ContentSynchronizer(new FileStrategy()))->scrapeImage();
     }
 
     public function mainAction()
@@ -61,6 +66,23 @@ class SyncTask extends Task
             $uncompressedFile = $this->config->tempDir . "/$time";
 
             $this->updateViaFileAction([3 => $uncompressedFile]);
+
+            $imageUpdatingEvent = Events::findFirst(
+                [
+                    'state = :state:',
+                    'bind' => [
+                        'state' => Events::IMAGE_UPDATING,
+                    ]
+                ]
+            );
+
+            if (!$imageUpdatingEvent) {
+
+                $event->state = Events::IMAGE_UPDATING;
+                $event->save();
+
+                $this->scrapeImageAction();
+            }
 
             unlink($uncompressedFile);
             $event->state = Events::DONE;

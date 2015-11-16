@@ -19,12 +19,12 @@ class FileStrategy extends SynchronizerStrategy
 
     protected $fullUpdate = false;
 
-    public function __construct($file)
+    public function __construct($file = null)
     {
         $this->file = $file;
     }
 
-    public function update()
+    public function updateContent()
     {
         $this->handleFile();
         $this->setReadyState();
@@ -32,30 +32,6 @@ class FileStrategy extends SynchronizerStrategy
         $this->moveSecondVersionToFirst();
         $this->deleteContents();
         $this->deleteImages();
-
-        /*$event = Events::findFirst(
-            [
-                'state = :state:',
-                'bind' => [
-                    'state' => Events::IMAGE_UPDATING,
-                ]
-            ]
-        );
-
-        if (!$event) {
-            $event = Events::findFirst(
-                [
-                    'state = :state:',
-                    'bind' => [
-                        'state' => Events::CONTENT_UPDATING,
-                    ]
-                ]
-            );
-            $event->state = Events::IMAGE_UPDATING;
-            $event->save();
-
-            $this->scrapeImageUrls();
-        }*/
     }
 
     protected function handleFile()

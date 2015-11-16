@@ -15,13 +15,13 @@ class ContentSynchronizer extends Injectable
         $this->synchronizerStrategy = $synchronizerStrategy;
     }
 
-    public function fullUpdate()
+    public function scrapeImage()
     {
-        $this->synchronizerStrategy->fullUpdate();
+        $this->synchronizerStrategy->scrapeImage();
     }
 
-    public function update()
+    public function updateContent()
     {
-        $this->synchronizerStrategy->update();
+        $this->synchronizerStrategy->updateContent();
     }
 }

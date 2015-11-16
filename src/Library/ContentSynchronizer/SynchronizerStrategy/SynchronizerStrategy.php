@@ -12,7 +12,7 @@ use Phalcon\Di\Injectable;
 
 abstract class SynchronizerStrategy extends Injectable
 {
-    abstract public function update();
+    abstract public function updateContent();
 
     protected function setReadyState()
     {
@@ -119,7 +119,7 @@ abstract class SynchronizerStrategy extends Injectable
         }
     }
 
-    protected function scrapeImageUrls()
+    public function scrapeImage()
     {
         $robot = new Robot();
         $robot->setRequestProvider(new ImageUrls());
