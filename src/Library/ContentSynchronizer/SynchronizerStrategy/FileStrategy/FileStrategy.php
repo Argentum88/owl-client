@@ -33,7 +33,7 @@ class FileStrategy extends SynchronizerStrategy
         $this->deleteContents();
         $this->deleteImages();
 
-        $event = Events::findFirst(
+        /*$event = Events::findFirst(
             [
                 'state = :state:',
                 'bind' => [
@@ -43,7 +43,6 @@ class FileStrategy extends SynchronizerStrategy
         );
 
         if (!$event) {
-            /** @var Events $event */
             $event = Events::findFirst(
                 [
                     'state = :state:',
@@ -56,7 +55,7 @@ class FileStrategy extends SynchronizerStrategy
             $event->save();
 
             $this->scrapeImageUrls();
-        }
+        }*/
     }
 
     protected function handleFile()
