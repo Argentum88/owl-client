@@ -23,7 +23,7 @@ class ImageUrls extends Urls implements RequestProviderInterface
             return false;
         }
 
-        $url = $this->config->imgHost . $rawUrl['url'];
+        $url = $this->getDI()->get('config')->imgHost . $rawUrl['url'];
 
         $request = new Request($url);
         $request->urlId = $rawUrl['urlId'];
