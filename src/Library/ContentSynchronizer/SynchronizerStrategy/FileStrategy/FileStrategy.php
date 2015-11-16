@@ -3,6 +3,7 @@
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
+use Client\Models\Events;
 use Client\Models\Urls;
 use Client\Models\Contents;
 
@@ -32,7 +33,30 @@ class FileStrategy extends SynchronizerStrategy
         $this->deleteContents();
         $this->deleteImages();
 
-        //$this->scrapeImageUrls();
+        $event = Events::findFirst(
+            [
+                'state = :state:',
+                'bind' => [
+                    'state' => Events::IMAGE_UPDATING,
+                ]
+            ]
+        );
+
+        if (!$event) {
+            /** @var Events $event */
+            $event = Events::findFirst(
+                [
+                    'state = :state:',
+                    'bind' => [
+                        'state' => Events::CONTENT_UPDATING,
+                    ]
+                ]
+            );
+            $event->state = Events::IMAGE_UPDATING;
+            $event->save();
+
+            $this->scrapeImageUrls();
+        }
     }
 
     protected function handleFile()

@@ -8,9 +8,10 @@ class Events extends \Phalcon\Mvc\Model
     const CLEAR_CACHE = 2;
 
     const OPEN = 3;
-    const PROCESSING = 4;
-    const DONE = 5;
-    const ERROR = 6;
+    const CONTENT_UPDATING = 4;
+    const IMAGE_UPDATING = 5;
+    const DONE = 6;
+    const ERROR = 7;
 
     public $id;
 

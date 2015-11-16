@@ -27,7 +27,7 @@ class SyncTask extends Task
         $event = Events::findFirst([
                 'state = :state1: OR state = :state2:',
                 'bind' => [
-                    'state1' => Events::PROCESSING,
+                    'state1' => Events::CONTENT_UPDATING,
                     'state2' => Events::ERROR,
                 ]
             ]);
@@ -48,7 +48,7 @@ class SyncTask extends Task
 
         if ( $event && ($event->type == Events::UPDATE_CONTENT) ) {
 
-            $event->state = Events::PROCESSING;
+            $event->state = Events::CONTENT_UPDATING;
             $event->save();
 
             $eventData = json_decode($event->data, true);

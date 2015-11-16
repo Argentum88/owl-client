@@ -124,8 +124,8 @@ abstract class SynchronizerStrategy extends Injectable
         $robot = new Robot();
         $robot->setRequestProvider(new ImageUrls());
 
-        $robot->setQueueSize(3);
-        $robot->setMaximumRPM(6000);
+        $robot->setQueueSize(1);
+        $robot->setMaximumRPM(180);
 
         $queue = $robot->getQueue();
         $queue->getDefaultOptions()->set(
@@ -143,7 +143,7 @@ abstract class SynchronizerStrategy extends Injectable
             'complete',
             function (Event $event) use (&$count) {
 
-                if ($count > 100) {
+                if ($count >= 100) {
 
                     $this->db->commit();
                     $this->db->begin();
@@ -168,7 +168,6 @@ abstract class SynchronizerStrategy extends Injectable
                     $urls->delete();
 
                     $this->log->info('соханили картинку');
-                    $count++;
                 } else {
                     /** @var Urls $urls */
                     $urls        = Urls::findFirst(
@@ -188,9 +187,8 @@ abstract class SynchronizerStrategy extends Injectable
                     }
 
                     $this->log->error("Ошибка!!! http code: $httpCode message: $error");
-                    $this->db->commit();
-                    exit();
                 }
+                $count++;
             }
         );
 
