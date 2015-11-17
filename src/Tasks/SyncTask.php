@@ -60,7 +60,16 @@ class SyncTask extends Task
             $patch = $eventData['patch'];
             $time = time();
             $compressedFile = $this->config->tempDir . "/$time.bz2";
-            file_put_contents($compressedFile, fopen($this->config->owl . $patch, 'r'));
+
+            $handle = fopen($this->config->owl . $patch, 'r');
+            if ($handle) {
+                file_put_contents($compressedFile, fopen($this->config->owl . $patch, 'r'));
+            } else {
+                $this->log->error("не удалось открыть файл " . $this->config->owl . $patch);
+                $event->state = Events::ERROR;
+                $event->save();
+                exit;
+            }
 
             exec("bzip2 -d $compressedFile");
             $uncompressedFile = $this->config->tempDir . "/$time";

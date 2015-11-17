@@ -50,10 +50,11 @@ abstract class SynchronizerStrategy extends Injectable
             }
 
             $contentOfFirstVersion  = Contents::findFirst([
-                    'version = :version: AND url = :url:',
+                    'url = :url: AND version = :version: AND type = :type:',
                     'bind' => [
+                        'url' => $content->url,
                         'version' => 1,
-                        'url' => $content->url
+                        'type' => $content->type
                     ]
                 ]);
 

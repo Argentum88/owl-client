@@ -138,9 +138,10 @@ class FileStrategy extends SynchronizerStrategy
         foreach ($urls as $url) {
             $contentForDeleting = Contents::findFirst(
                 [
-                    'url = :url:',
+                    'url = :url: AND type = :type:',
                     'bind' => [
-                        'url'  => $url->url
+                        'url'  => $url->url,
+                        'type' => $url->type
                     ]
                 ]
             );
