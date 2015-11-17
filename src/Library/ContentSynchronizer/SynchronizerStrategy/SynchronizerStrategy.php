@@ -126,7 +126,7 @@ abstract class SynchronizerStrategy extends Injectable
         $robot->setRequestProvider(new ImageUrls());
 
         $robot->setQueueSize(1);
-        $robot->setMaximumRPM(180);
+        $robot->setMaximumRPM(60);
 
         $queue = $robot->getQueue();
         $queue->getDefaultOptions()->set(
@@ -155,6 +155,7 @@ abstract class SynchronizerStrategy extends Injectable
                 $response = $event->response;
                 $urlId    = $event->request->urlId;
                 $httpCode = $response->getInfo(CURLINFO_HTTP_CODE);
+                $info = $response->getInfo();
 
                 if ($httpCode == 200) {
                     /** @var Urls $urls */
@@ -168,7 +169,7 @@ abstract class SynchronizerStrategy extends Injectable
                     );
                     $urls->delete();
 
-                    $this->log->info('соханили картинку');
+                    $this->log->info("Соханили картинку: TOTAL_TIME={$info['total_time']} NAME_LOOKUP_TIME = {$info['namelookup_time']} CONNECT_TIME={$info['connect_time']} PRE_TRANSFER_TIME={$info['pretransfer_time']} START_TRANSFER_TIME={$info['starttransfer_time']}");
                 } else {
                     /** @var Urls $urls */
                     $urls        = Urls::findFirst(
