@@ -143,6 +143,7 @@ abstract class SynchronizerStrategy extends Injectable
         $queue->addListener(
             'complete',
             function (Event $event) use (&$count) {
+                $startCallbackTime = microtime(true);
 
                 if ($count >= 100) {
 
@@ -169,7 +170,10 @@ abstract class SynchronizerStrategy extends Injectable
                     );
                     $urls->delete();
 
-                    $this->log->info("Соханили картинку: TOTAL_TIME={$info['total_time']} NAME_LOOKUP_TIME = {$info['namelookup_time']} CONNECT_TIME={$info['connect_time']} PRE_TRANSFER_TIME={$info['pretransfer_time']} START_TRANSFER_TIME={$info['starttransfer_time']}");
+                    $finishCallbackTame = microtime(true);
+                    $callbackExecutedTime = $finishCallbackTame - $startCallbackTime;
+
+                    $this->log->info("Соханили картинку: TOTAL_TIME={$info['total_time']} NAME_LOOKUP_TIME = {$info['namelookup_time']} CONNECT_TIME={$info['connect_time']} PRE_TRANSFER_TIME={$info['pretransfer_time']} START_TRANSFER_TIME={$info['starttransfer_time']} CALLBACK=$callbackExecutedTime");
                 } else {
                     /** @var Urls $urls */
                     $urls        = Urls::findFirst(
