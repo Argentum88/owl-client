@@ -5,7 +5,7 @@
         "php": ">=5.4",
         "ext-phalcon": "2.0.*",
 
-        "argentum88/curl-robot": "dev-bugfix",
+        "stil/curl-robot": "0.2.0",
         "tracy/tracy": "2.3.4"
     },
 
