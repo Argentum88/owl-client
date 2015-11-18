@@ -19,6 +19,7 @@ class OwlRequester
 
     public function request($url, $useOwlServer = true)
     {
+        $url = urldecode($url);
         PH_DEBUG ? Debugger::dumpBar($url, 'url') : null;
 
         if ($useOwlServer) {
