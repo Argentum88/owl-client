@@ -136,6 +136,7 @@ class FileStrategy extends SynchronizerStrategy
         );
 
         foreach ($urls as $url) {
+            /** @var Contents $contentForDeleting */
             $contentForDeleting = Contents::findFirst(
                 [
                     'url = :url: AND type = :type:',
@@ -148,6 +149,7 @@ class FileStrategy extends SynchronizerStrategy
 
             if ($contentForDeleting) {
                 $contentForDeleting->delete();
+                $this->log->info("Удален контент url=" . $contentForDeleting->url);
             }
             $url->delete();
         }
@@ -170,6 +172,7 @@ class FileStrategy extends SynchronizerStrategy
         foreach ($urls as $url) {
             unlink($this->config->imagesCacheDir . $url->url);
             $url->delete();
+            $this->log->info("Удалена картинка url=" . $url->url);
         }
     }
 }

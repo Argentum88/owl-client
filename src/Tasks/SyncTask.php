@@ -38,7 +38,7 @@ class SyncTask extends Task
             ]);
 
         if ($event) {
-            $this->log->error("Не позволено");
+            $this->log->error("Предыдущие обновление не завершено, либо завершено с ошибкой");
             exit();
         }
 
@@ -75,6 +75,7 @@ class SyncTask extends Task
             $uncompressedFile = $this->config->tempDir . "/$time";
 
             $this->updateViaFileAction([3 => $uncompressedFile]);
+            unlink($uncompressedFile);
 
             $imageUpdatingEvent = Events::findFirst(
                 [
@@ -93,7 +94,6 @@ class SyncTask extends Task
                 $this->scrapeImageAction();
             }
 
-            unlink($uncompressedFile);
             $event->state = Events::DONE;
             $event->save();
         }
