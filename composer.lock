@@ -4,9 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "40529374f942d575cffd7dd7f21efa80",
-    "content-hash": "43bfbc15642be5185e1ccb5dca46287e",
+    "hash": "c21b3a341ed1aad99ab9f14878c61413",
+    "content-hash": "650e19ae8af6b3d21b6906f12d8c1f8e",
     "packages": [
+        {
+            "name": "evert/sitemap-php",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/evert/sitemap-php.git",
+                "reference": "fafc47423bd06ec494c763f57a5304e9b3e2d4d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/evert/sitemap-php/zipball/fafc47423bd06ec494c763f57a5304e9b3e2d4d3",
+                "reference": "fafc47423bd06ec494c763f57a5304e9b3e2d4d3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "SitemapPHP": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Osman Üngür",
+                    "email": "osmanungur@gmail.com"
+                },
+                {
+                    "name": "Evert Pot",
+                    "email": "evert@rooftopsolutions.nl"
+                }
+            ],
+            "description": "Lightweight library for generating Google sitemap XML files",
+            "homepage": "https://github.com/evert/sitemap-php/",
+            "keywords": [
+                "Sitemap"
+            ],
+            "time": "2015-07-06 18:20:42"
+        },
         {
             "name": "stil/curl-easy",
             "version": "v1.1.4",
@@ -187,7 +231,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "evert/sitemap-php": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
