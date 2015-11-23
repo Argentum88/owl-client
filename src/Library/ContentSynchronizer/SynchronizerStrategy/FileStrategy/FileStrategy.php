@@ -47,7 +47,7 @@ class FileStrategy extends SynchronizerStrategy
                     $this->db->commit();
                     $this->db->begin();
                     $count = 1;
-                    $this->log->info('применили транзакцию');
+                    $this->log->info('применили транзакцию синхронизации контента');
                 }
 
                 $data = json_decode($line, true);

@@ -52,6 +52,7 @@ class SyncTask extends Task
         ]);
 
         if ( $event && ($event->type == Events::UPDATE_CONTENT) ) {
+            $this->log->info('начали синхронизацию контента');
 
             $event->state = Events::CONTENT_UPDATING;
             $event->save();
@@ -76,6 +77,8 @@ class SyncTask extends Task
 
             $this->updateViaFileAction([3 => $uncompressedFile]);
             unlink($uncompressedFile);
+
+            $this->log->info('закончили синхронизацию контента');
 
             $imageUpdatingEvent = Events::findFirst(
                 [

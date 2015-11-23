@@ -127,6 +127,7 @@ abstract class SynchronizerStrategy extends Injectable
 
         $robot->setQueueSize(1);
         $robot->setMaximumRPM(60);
+        $robot->setSpeedMeterFrame(1);
 
         $queue = $robot->getQueue();
         $queue->getDefaultOptions()->set(
@@ -150,7 +151,7 @@ abstract class SynchronizerStrategy extends Injectable
                     $this->db->commit();
                     $this->db->begin();
                     $count = 0;
-                    $this->log->info('применили транзакцию');
+                    $this->log->info('применили транзакцию синхронизации картинок');
                 }
 
                 $response = $event->response;
