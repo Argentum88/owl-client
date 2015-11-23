@@ -1,5 +1,7 @@
 <?php
 
+namespace Client\Tasks;
+
 use Client\Models\Contents;
 use Client\Tasks;
 use Phalcon\CLI\Task;
