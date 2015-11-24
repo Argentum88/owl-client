@@ -16,7 +16,7 @@ abstract class SynchronizerStrategy extends Injectable
 
     protected function setReadyState()
     {
-        $this->log->info('Начали брос статуса обновления');
+        $this->log->info('Начали сброс статуса обновления');
         $this->db->execute("UPDATE contents SET state = ? WHERE state = ?", [Contents::READY, Contents::UPDATING]);
         $this->log->info('Сбросили статус обновления');
     }
