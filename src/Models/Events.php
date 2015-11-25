@@ -56,7 +56,7 @@ class Events extends \Phalcon\Mvc\Model
     public function processUpdateContent($task)
     {
         $event = self::findFirst([
-            'type = :type: AND (:state = :state1: OR state = :state2:)',
+            'type = :type: AND (state = :state1: OR state = :state2:)',
             'bind' => [
                 'type'   => self::UPDATE_CONTENT,
                 'state1' => self::CONTENT_UPDATING,

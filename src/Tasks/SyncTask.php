@@ -37,7 +37,7 @@ class SyncTask extends Task
     {
         /** @var Events $event */
         $event = Events::findFirst([
-            'type = :type AND :state = :state:',
+            'type = :type: AND state = :state:',
             'bind' => [
                 'type'  => Events::UPDATE_BANNER,
                 'state' => Events::OPEN,
@@ -54,7 +54,7 @@ class SyncTask extends Task
     {
         /** @var Events $event */
         $event = Events::findFirst([
-            'type = :type AND :state = :state:',
+            'type = :type: AND state = :state:',
             'bind' => [
                 'type'  => Events::UPDATE_CONTENT,
                 'state' => Events::OPEN,

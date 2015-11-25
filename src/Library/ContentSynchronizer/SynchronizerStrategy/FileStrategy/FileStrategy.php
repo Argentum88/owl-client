@@ -90,7 +90,7 @@ class FileStrategy extends SynchronizerStrategy
 
     protected function createBanner($data)
     {
-        $banners = $data['content'][1];
+        $banners = json_decode($data['content'][1], true);
 
         foreach ($banners['banners'] as $placeName => $place) {
             $bodyContent =
