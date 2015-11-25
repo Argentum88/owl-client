@@ -11,20 +11,60 @@ use Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy\Scra
 
 class SyncTask extends Task
 {
-    public function updateViaScraperAction()
+    public function updateContentViaScraperAction()
     {
         (new ContentSynchronizer(new ScraperStrategy()))->updateContent();
     }
 
-    public function updateViaFileAction($params)
+    public function updateContentViaFileAction($params)
     {
         $file = $params[3];
         (new ContentSynchronizer(new FileStrategy($file)))->updateContent();
     }
 
+    public function updateBannerViaFileAction($params)
+    {
+        $file = $params[3];
+        (new ContentSynchronizer(new FileStrategy($file)))->updateBanner();
+    }
+
     public function scrapeImageAction()
     {
         (new ContentSynchronizer(new FileStrategy()))->scrapeImage();
+    }
+
+    public function updateBannerAction()
+    {
+        /** @var Events $event */
+        $event = Events::findFirst([
+            'type = :type AND :state = :state:',
+            'bind' => [
+                'type'  => Events::UPDATE_BANNER,
+                'state' => Events::OPEN,
+            ],
+            'order' => 'created_at ASC'
+        ]);
+
+        if ($event) {
+            $event->processUpdateBanner($this);
+        }
+    }
+
+    public function updateContentAction()
+    {
+        /** @var Events $event */
+        $event = Events::findFirst([
+            'type = :type AND :state = :state:',
+            'bind' => [
+                'type'  => Events::UPDATE_CONTENT,
+                'state' => Events::OPEN,
+            ],
+            'order' => 'created_at ASC'
+        ]);
+
+        if ($event) {
+            $event->processUpdateContent($this);
+        }
     }
 
     public function mainAction()
@@ -75,7 +115,7 @@ class SyncTask extends Task
             exec("bzip2 -d $compressedFile");
             $uncompressedFile = $this->config->tempDir . "/$time";
 
-            $this->updateViaFileAction([3 => $uncompressedFile]);
+            $this->updateContentViaFileAction([3 => $uncompressedFile]);
             unlink($uncompressedFile);
 
             $this->log->info('закончили синхронизацию контента');

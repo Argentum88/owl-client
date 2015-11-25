@@ -13,6 +13,7 @@ use Phalcon\Di\Injectable;
 abstract class SynchronizerStrategy extends Injectable
 {
     abstract public function updateContent();
+    abstract public function updateBanner();
 
     protected function setReadyState()
     {

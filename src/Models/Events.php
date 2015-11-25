@@ -5,7 +5,7 @@ namespace Client\Models;
 class Events extends \Phalcon\Mvc\Model
 {
     const UPDATE_CONTENT  = 1;
-    const CLEAR_CACHE = 2;
+    const UPDATE_BANNER = 2;
 
     const OPEN = 3;
     const CONTENT_UPDATING = 4;
@@ -26,5 +26,94 @@ class Events extends \Phalcon\Mvc\Model
     public function beforeCreate()
     {
         $this->created_at = date(DATE_ISO8601);
+    }
+
+    protected function getFile()
+    {
+        $eventData = json_decode($this->data, true);
+        $patch = $eventData['patch'];
+        $time = time();
+        $compressedFile = $this->config->tempDir . "/$time.bz2";
+
+        $handle = fopen($this->config->owl . $patch, 'r');
+        if ($handle) {
+            file_put_contents($compressedFile, fopen($this->config->owl . $patch, 'r'));
+        } else {
+            $this->log->error("не удалось открыть файл " . $this->config->owl . $patch);
+            $this->state = self::ERROR;
+            $this->save();
+            exit;
+        }
+
+        exec("bzip2 -d $compressedFile");
+        $uncompressedFile = $this->config->tempDir . "/$time";
+        return $uncompressedFile;
+    }
+
+    /**
+     * @param \Client\Tasks\SyncTask $task
+     */
+    public function processUpdateContent($task)
+    {
+        $event = self::findFirst([
+            'type = :type: AND (:state = :state1: OR state = :state2:)',
+            'bind' => [
+                'type'   => self::UPDATE_CONTENT,
+                'state1' => self::CONTENT_UPDATING,
+                'state2' => self::ERROR,
+            ]
+        ]);
+
+        if ($event) {
+            $this->log->error("Предыдущие обновление контента не завершено, либо завершено с ошибкой");
+            exit();
+        }
+
+        $this->log->info('начали синхронизацию контента');
+
+        $this->state = self::CONTENT_UPDATING;
+        $this->save();
+
+        $file = $this->getFile();
+        $task->updateContentViaFileAction([3 => $file]);
+        unlink($file);
+
+        $this->log->info('закончили синхронизацию контента');
+
+        $imageUpdatingEvent = self::findFirst(
+            [
+                'state = :state:',
+                'bind' => [
+                    'state' => self::IMAGE_UPDATING,
+                ]
+            ]
+        );
+
+        if (!$imageUpdatingEvent) {
+
+            $this->state = self::IMAGE_UPDATING;
+            $this->save();
+
+            $task->scrapeImageAction();
+        }
+
+        $this->state = self::DONE;
+        $this->save();
+    }
+
+    /**
+     * @param \Client\Tasks\SyncTask $task
+     */
+    public function processUpdateBanner($task)
+    {
+        $this->log->info('начали синхронизацию баннеров');
+
+        $file = $this->getFile();
+        $task->updateBannerViaFileAction([3 => $file]);
+        unlink($file);
+
+        $this->log->info('закончили синхронизацию контента');
+        $this->state = self::DONE;
+        $this->save();
     }
 }

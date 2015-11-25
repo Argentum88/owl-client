@@ -15,5 +15,6 @@ class Routes extends RouterGroup
 
         $this->addGet('/{path:.*}', ['action' => 'forward']);
         $this->add('/cache/update', ['action' => 'updateCache']);
+        $this->add('/cache/banners/update', ['action' => 'updateBanners']);
     }
 }

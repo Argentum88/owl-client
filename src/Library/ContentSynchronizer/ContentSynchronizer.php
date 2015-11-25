@@ -24,4 +24,9 @@ class ContentSynchronizer extends Injectable
     {
         $this->synchronizerStrategy->updateContent();
     }
+
+    public function updateBanner()
+    {
+        $this->synchronizerStrategy->updateBanner();
+    }
 }

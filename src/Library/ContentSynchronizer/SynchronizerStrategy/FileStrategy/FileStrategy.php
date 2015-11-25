@@ -34,6 +34,11 @@ class FileStrategy extends SynchronizerStrategy
         $this->deleteImages();
     }
 
+    public function updateBanner()
+    {
+        $this->handleFile();
+    }
+
     protected function handleFile()
     {
         $handle = fopen($this->file, "r");
@@ -65,6 +70,8 @@ class FileStrategy extends SynchronizerStrategy
                     if (file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE, Urls::FOR_DELETING);
                     }
+                } elseif ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
+                    $this->createBanner($data);
                 } elseif ($data['event'] == 'full-update') {
                     $this->fullUpdate = true;
                 } else {
@@ -78,6 +85,62 @@ class FileStrategy extends SynchronizerStrategy
         } else {
             $this->log->error("не удалось открыть файл");
             exit();
+        }
+    }
+
+    protected function createBanner($data)
+    {
+        $banners = $data['content'][1];
+
+        foreach ($banners['banners'] as $placeName => $place) {
+            $bodyContent =
+                '
+<?php
+    $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
+?>
+
+<?php if (preg_match(\'%s\', $userAgent)): ?>
+%s
+<?php else: ?>
+%s
+<?php endif; ?>
+';
+
+            $bodyContent = sprintf(
+                $bodyContent,
+                $place['regexp']['regexp'],
+                $place['regexp']['body'],
+                $place['default']['body']
+            );
+
+            file_put_contents($this->config->application->bannersDir . "$placeName.php", $bodyContent);
+        }
+
+        $headContent =
+            '
+<?php
+    $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
+?>
+';
+        file_put_contents($this->config->application->bannersDir . "head.php", $headContent);
+
+        foreach ($banners['banners'] as $placeName => $place) {
+            $headContent =
+                '
+<?php if (preg_match(\'%s\', $userAgent)): ?>
+%s
+<?php else: ?>
+%s
+<?php endif; ?>
+';
+
+            $headContent = sprintf(
+                $headContent,
+                $place['regexp']['regexp'],
+                $place['regexp']['head'],
+                $place['default']['head']
+            );
+            file_put_contents($this->config->application->bannersDir . "head.php", $headContent, FILE_APPEND);
         }
     }
 

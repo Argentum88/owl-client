@@ -47,4 +47,18 @@ class ClientController extends ControllerBase
         $event->create();
         return $this->response->setStatusCode(200, 'OK');
     }
+
+    public function updateBannersAction()
+    {
+        $this->view->disable();
+
+        $patch = $this->request->getPost('patch');
+
+        $event = new Events();
+        $event->state = Events::OPEN;
+        $event->type = Events::UPDATE_BANNER;
+        $event->data = json_encode(['patch' => $patch]);
+        $event->create();
+        return $this->response->setStatusCode(200, 'OK');
+    }
 }
