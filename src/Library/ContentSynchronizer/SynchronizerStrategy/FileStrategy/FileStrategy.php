@@ -142,6 +142,18 @@ class FileStrategy extends SynchronizerStrategy
             );
             file_put_contents($this->config->application->bannersDir . "head.php", $headContent, FILE_APPEND);
         }
+
+        $allFile = scandir($this->config->application->bannersDir);
+        unset($allFile[array_search('.', $allFile)], $allFile[array_search('..', $allFile)], $allFile[array_search('head.php', $allFile)]);
+        $allBanners = array_map(function($file) {
+            $banner = str_replace('.php', '', $file);
+            return $banner;
+        }, $allFile);
+        $updatedBanners = array_keys($banners['banners']);
+        $bannersForDelete = array_diff($allBanners, $updatedBanners);
+        foreach ($bannersForDelete as $bannerForDelete) {
+            unlink($this->config->application->bannersDir . "$bannerForDelete.php");
+        }
     }
 
     protected function createContent($data)
