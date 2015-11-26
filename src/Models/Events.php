@@ -112,7 +112,7 @@ class Events extends \Phalcon\Mvc\Model
         $task->updateBannerViaFileAction([3 => $file]);
         unlink($file);
 
-        $this->getDI()->get('log')->info('закончили синхронизацию контента');
+        $this->getDI()->get('log')->info('закончили синхронизацию баннеров');
         $this->state = self::DONE;
         $this->save();
     }
