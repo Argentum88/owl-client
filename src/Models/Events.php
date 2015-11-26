@@ -33,20 +33,20 @@ class Events extends \Phalcon\Mvc\Model
         $eventData = json_decode($this->data, true);
         $patch = $eventData['patch'];
         $time = time();
-        $compressedFile = $this->config->tempDir . "/$time.bz2";
+        $compressedFile = $this->getDI()->get('config')->tempDir . "/$time.bz2";
 
-        $handle = fopen($this->config->owl . $patch, 'r');
+        $handle = fopen($this->getDI()->get('config')->owl . $patch, 'r');
         if ($handle) {
-            file_put_contents($compressedFile, fopen($this->config->owl . $patch, 'r'));
+            file_put_contents($compressedFile, fopen($this->getDI()->get('config')->owl . $patch, 'r'));
         } else {
-            $this->log->error("не удалось открыть файл " . $this->config->owl . $patch);
+            $this->getDI()->get('log')->error("не удалось открыть файл " . $this->getDI()->get('config')->owl . $patch);
             $this->state = self::ERROR;
             $this->save();
             exit;
         }
 
         exec("bzip2 -d $compressedFile");
-        $uncompressedFile = $this->config->tempDir . "/$time";
+        $uncompressedFile = $this->getDI()->get('config')->tempDir . "/$time";
         return $uncompressedFile;
     }
 
@@ -65,11 +65,11 @@ class Events extends \Phalcon\Mvc\Model
         ]);
 
         if ($event) {
-            $this->log->error("Предыдущие обновление контента не завершено, либо завершено с ошибкой");
+            $this->getDI()->get('log')->error("Предыдущие обновление контента не завершено, либо завершено с ошибкой");
             exit();
         }
 
-        $this->log->info('начали синхронизацию контента');
+        $this->getDI()->get('log')->info('начали синхронизацию контента');
 
         $this->state = self::CONTENT_UPDATING;
         $this->save();
@@ -78,7 +78,7 @@ class Events extends \Phalcon\Mvc\Model
         $task->updateContentViaFileAction([3 => $file]);
         unlink($file);
 
-        $this->log->info('закончили синхронизацию контента');
+        $this->getDI()->get('log')->info('закончили синхронизацию контента');
 
         $imageUpdatingEvent = self::findFirst(
             [
@@ -106,13 +106,13 @@ class Events extends \Phalcon\Mvc\Model
      */
     public function processUpdateBanner($task)
     {
-        $this->log->info('начали синхронизацию баннеров');
+        $this->getDI()->get('log')->info('начали синхронизацию баннеров');
 
         $file = $this->getFile();
         $task->updateBannerViaFileAction([3 => $file]);
         unlink($file);
 
-        $this->log->info('закончили синхронизацию контента');
+        $this->getDI()->get('log')->info('закончили синхронизацию контента');
         $this->state = self::DONE;
         $this->save();
     }

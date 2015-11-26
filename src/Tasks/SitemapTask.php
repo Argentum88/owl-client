@@ -74,47 +74,4 @@ class SitemapTask extends Task
 
         $sitemap->createSitemapIndex($domain . '/sitemap/', 'Today');
     }
-
-    public function testAction()
-    {
-        $url = '';
-        $request = new Request($url);
-        $request->getOptions()
-            ->set(CURLOPT_TIMEOUT, 8)
-            ->set(CURLOPT_RETURNTRANSFER, true)
-            ->set(CURLOPT_USERAGENT, $this->di->get('config')->curlUserAgent);
-
-        $response = $request->send();
-        $response = json_decode($response->getContent(), true);
-
-        foreach ($response['banners'] as $placeName => $place) {
-            $fileContent =
-                '<?php
-
-                $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
-                if (preg_match(\'%s\', $userAgent)) {
-                    echo \'%s\';
-                } else {
-                    echo \'%s\';
-                }
-                ';
-
-            foreach ($place as $banner) {
-                if ($banner['type'] == 'default') {
-                    $defaultBanner = $banner;
-                } else {
-                    $regexpBanner = $banner;
-                }
-            }
-
-            $fileContent = sprintf(
-                $fileContent,
-                $regexpBanner['content']['regexp'],
-                $regexpBanner['content']['body'],
-                $defaultBanner['content']['body']
-            );
-
-            file_put_contents($this->config->application->bannersDir . "$placeName.php", $fileContent);
-        }
-    }
 }
