@@ -33,8 +33,8 @@ class Events extends \Phalcon\Mvc\Model
     {
         $eventData = json_decode($this->data, true);
         $patch = $eventData['patch'];
-        $time = time();
-        $compressedFile = $this->getDI()->get('config')->tempDir . "/$time.bz2";
+        $uniqid = uniqid();
+        $compressedFile = $this->getDI()->get('config')->tempDir . "/$uniqid.bz2";
 
         $handle = fopen($this->getDI()->get('config')->owl . $patch, 'r');
         if ($handle) {
@@ -47,7 +47,7 @@ class Events extends \Phalcon\Mvc\Model
         }
 
         exec("bzip2 -d $compressedFile");
-        $uncompressedFile = $this->getDI()->get('config')->tempDir . "/$time";
+        $uncompressedFile = $this->getDI()->get('config')->tempDir . "/$uniqid";
         return $uncompressedFile;
     }
 
