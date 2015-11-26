@@ -19,7 +19,8 @@ class SyncTask extends Task
     public function updateContentViaFileAction($params)
     {
         $file = $params[3];
-        (new ContentSynchronizer(new FileStrategy($file)))->updateContent();
+        $fullUpdate = $params[4];
+        (new ContentSynchronizer(new FileStrategy($file, $fullUpdate)))->updateContent();
     }
 
     public function updateBannerViaFileAction($params)
@@ -54,9 +55,10 @@ class SyncTask extends Task
     {
         /** @var Events $event */
         $event = Events::findFirst([
-            'type = :type: AND state = :state:',
+            '(type = :type1: OR type = :type2:) AND state = :state:',
             'bind' => [
-                'type'  => Events::UPDATE_CONTENT,
+                'type1' => Events::UPDATE_CONTENT,
+                'type2' => Events::FULL_UPDATE_CONTENT,
                 'state' => Events::OPEN,
             ],
             'order' => 'created_at ASC'

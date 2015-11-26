@@ -4,6 +4,7 @@ namespace Client\Models;
 
 class Events extends \Phalcon\Mvc\Model
 {
+    const FULL_UPDATE_CONTENT  = 8;
     const UPDATE_CONTENT  = 1;
     const UPDATE_BANNER = 2;
 
@@ -56,9 +57,10 @@ class Events extends \Phalcon\Mvc\Model
     public function processUpdateContent($task)
     {
         $event = self::findFirst([
-            'type = :type: AND (state = :state1: OR state = :state2:)',
+            '(type = :type1: OR type = :type2:) AND (state = :state1: OR state = :state2:)',
             'bind' => [
-                'type'   => self::UPDATE_CONTENT,
+                'type1'  => self::UPDATE_CONTENT,
+                'type2'  => self::FULL_UPDATE_CONTENT,
                 'state1' => self::CONTENT_UPDATING,
                 'state2' => self::ERROR,
             ]
@@ -75,7 +77,11 @@ class Events extends \Phalcon\Mvc\Model
         $this->save();
 
         $file = $this->getFile();
-        $task->updateContentViaFileAction([3 => $file]);
+        $fullUpdate = false;
+        if ($this->type == self::FULL_UPDATE_CONTENT) {
+            $fullUpdate = true;
+        }
+        $task->updateContentViaFileAction([3 => $file, 4 => $fullUpdate]);
         unlink($file);
 
         $this->getDI()->get('log')->info('закончили синхронизацию контента');

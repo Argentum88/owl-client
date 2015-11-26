@@ -19,9 +19,10 @@ class FileStrategy extends SynchronizerStrategy
 
     protected $fullUpdate = false;
 
-    public function __construct($file = null)
+    public function __construct($file = null, $fullUpdate = false)
     {
         $this->file = $file;
+        $this->fullUpdate = $fullUpdate;
     }
 
     public function updateContent()
@@ -72,8 +73,6 @@ class FileStrategy extends SynchronizerStrategy
                     }
                 } elseif ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     $this->createBanner($data);
-                } elseif ($data['event'] == 'full-update') {
-                    $this->fullUpdate = true;
                 } else {
                     $this->log->error("операция не поддерживается");
                     continue;

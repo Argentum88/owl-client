@@ -39,10 +39,11 @@ class ClientController extends ControllerBase
         $this->view->disable();
 
         $patch = $this->request->getPost('patch');
+        $clear = $this->request->getPost('clear');
 
         $event = new Events();
         $event->state = Events::OPEN;
-        $event->type = Events::UPDATE_CONTENT;
+        $event->type = $clear == 1 ? Events::FULL_UPDATE_CONTENT : Events::UPDATE_CONTENT;
         $event->data = json_encode(['patch' => $patch]);
         $event->create();
         return $this->response->setStatusCode(200, 'OK');
