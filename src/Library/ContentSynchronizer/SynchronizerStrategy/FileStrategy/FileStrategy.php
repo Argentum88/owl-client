@@ -74,7 +74,7 @@ class FileStrategy extends SynchronizerStrategy
                 } elseif ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     $this->createBanner($data);
                 } else {
-                    $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']}");
+                    $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
                     continue;
                 }
             }
