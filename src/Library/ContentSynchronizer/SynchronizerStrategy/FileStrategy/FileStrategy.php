@@ -91,8 +91,9 @@ class FileStrategy extends SynchronizerStrategy
         $banners = json_decode($data['content'][1], true);
 
         foreach ($banners['banners'] as $placeName => $place) {
-            $bodyContent =
-                '
+            if (isset($place['regexp'])) {
+                $bodyContent =
+                    '
 <?php
     $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
 ?>
@@ -104,12 +105,20 @@ class FileStrategy extends SynchronizerStrategy
 <?php endif; ?>
 ';
 
-            $bodyContent = sprintf(
-                $bodyContent,
-                $place['regexp']['regexp'],
-                $place['regexp']['body'],
-                $place['default']['body']
-            );
+                $bodyContent = sprintf(
+                    $bodyContent,
+                    $place['regexp']['regexp'],
+                    $place['regexp']['body'] ?: '',
+                    $place['default']['body'] ?: ''
+                );
+            } else {
+                $bodyContent = '<?= %s ?>';
+
+                $bodyContent = sprintf(
+                    $bodyContent,
+                    $place['default']['body'] ?: ''
+                );
+            }
 
             file_put_contents($this->config->application->bannersDir . "$placeName.php", $bodyContent);
         }
@@ -123,8 +132,9 @@ class FileStrategy extends SynchronizerStrategy
         file_put_contents($this->config->application->bannersDir . "head.php", $headContent);
 
         foreach ($banners['banners'] as $placeName => $place) {
-            $headContent =
-                '
+            if (isset($place['regexp'])) {
+                $headContent =
+                    '
 <?php if (preg_match(\'%s\', $userAgent)): ?>
 %s
 <?php else: ?>
@@ -132,12 +142,21 @@ class FileStrategy extends SynchronizerStrategy
 <?php endif; ?>
 ';
 
-            $headContent = sprintf(
-                $headContent,
-                $place['regexp']['regexp'],
-                $place['regexp']['head'],
-                $place['default']['head']
-            );
+                $headContent = sprintf(
+                    $headContent,
+                    $place['regexp']['regexp'],
+                    $place['regexp']['head'] ?: '',
+                    $place['default']['head'] ?: ''
+                );
+            } else {
+                $headContent = '<?= %s ?>';
+
+                $headContent = sprintf(
+                    $headContent,
+                    $place['default']['head'] ?: ''
+                );
+            }
+
             file_put_contents($this->config->application->bannersDir . "head.php", $headContent, FILE_APPEND);
         }
 
