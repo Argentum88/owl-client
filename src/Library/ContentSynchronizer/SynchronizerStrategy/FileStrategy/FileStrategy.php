@@ -144,7 +144,7 @@ class FileStrategy extends SynchronizerStrategy
                     $place['default']['head'] ?: ''
                 );
             } else {
-                $headContent = $place['default']['body'] ?: '';
+                $headContent = $place['default']['head'] ?: '';
             }
 
             file_put_contents($this->config->application->bannersDir . "head.php", $headContent, FILE_APPEND);
