@@ -112,17 +112,7 @@ class FileStrategy extends SynchronizerStrategy
                     $place['default']['body'] ?: ''
                 );
             } else {
-                $bodyContent =
-                    '
-<?php if (true): ?>
-%s
-<?php endif; ?>
-';
-
-                $bodyContent = sprintf(
-                    $bodyContent,
-                    $place['default']['body'] ?: ''
-                );
+                $bodyContent = $place['default']['body'] ?: '';
             }
 
             file_put_contents($this->config->application->bannersDir . "$placeName.php", $bodyContent);
@@ -154,17 +144,7 @@ class FileStrategy extends SynchronizerStrategy
                     $place['default']['head'] ?: ''
                 );
             } else {
-                $headContent =
-                    '
-<?php if (true): ?>
-%s
-<?php endif; ?>
-';
-
-                $headContent = sprintf(
-                    $headContent,
-                    $place['default']['head'] ?: ''
-                );
+                $headContent = $place['default']['body'] ?: '';
             }
 
             file_put_contents($this->config->application->bannersDir . "head.php", $headContent, FILE_APPEND);
