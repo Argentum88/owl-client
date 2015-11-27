@@ -112,7 +112,12 @@ class FileStrategy extends SynchronizerStrategy
                     $place['default']['body'] ?: ''
                 );
             } else {
-                $bodyContent = '<?= %s ?>';
+                $bodyContent =
+                    '
+<?php if (true): ?>
+%s
+<?php endif; ?>
+';
 
                 $bodyContent = sprintf(
                     $bodyContent,
@@ -149,7 +154,12 @@ class FileStrategy extends SynchronizerStrategy
                     $place['default']['head'] ?: ''
                 );
             } else {
-                $headContent = '<?= %s ?>';
+                $headContent =
+                    '
+<?php if (true): ?>
+%s
+<?php endif; ?>
+';
 
                 $headContent = sprintf(
                     $headContent,
