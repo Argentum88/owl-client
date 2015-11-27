@@ -57,17 +57,16 @@ class Events extends \Phalcon\Mvc\Model
     public function processUpdateContent($task)
     {
         $event = self::findFirst([
-            '(type = :type1: OR type = :type2:) AND (state = :state1: OR state = :state2:)',
+            '(type = :type1: OR type = :type2:) AND (state = :state:)',
             'bind' => [
                 'type1'  => self::UPDATE_CONTENT,
                 'type2'  => self::FULL_UPDATE_CONTENT,
-                'state1' => self::CONTENT_UPDATING,
-                'state2' => self::ERROR,
+                'state' => self::CONTENT_UPDATING,
             ]
         ]);
 
         if ($event) {
-            $this->getDI()->get('log')->error("Предыдущие обновление контента не завершено, либо завершено с ошибкой");
+            $this->getDI()->get('log')->error("Предыдущие обновление контента не завершено");
             exit();
         }
 
