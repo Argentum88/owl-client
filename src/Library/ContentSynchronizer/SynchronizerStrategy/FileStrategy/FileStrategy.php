@@ -3,7 +3,6 @@
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
-use Client\Models\Events;
 use Client\Models\Urls;
 use Client\Models\Contents;
 
