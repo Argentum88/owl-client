@@ -11,28 +11,21 @@ abstract class SynchronizerStrategy extends Injectable
     abstract public function updateContent();
     abstract public function updateBanner();
 
-    protected function setReadyState()
-    {
-        $this->log->info('Начали сброс статуса обновления');
-        $this->db->execute("UPDATE contents SET state = ? WHERE state = ?", [Contents::READY, Contents::UPDATING]);
-        $this->log->info('Сбросили статус обновления');
-    }
-
-    protected function deleteFirstVersion($all = true)
+    protected function deleteOldVersion($all = true, $startUpdatingTime)
     {
         if ($all) {
-            $this->log->info('Начали удаление первой версия');
-            $this->db->execute("DELETE FROM contents WHERE version = ?", [1]);
-            $this->log->info('Удалили первую версию');
+            $this->log->info('Начали удаление старой версии');
+            $this->db->execute("DELETE FROM contents WHERE created_at < ?", [$startUpdatingTime]);
+            $this->log->info('Удалили старую версию');
 
             return;
         }
 
         /** @var Contents[] $contents */
         $contents = Contents::find([
-                'version = :version:',
+                'created_at >= :created_at:',
                 'bind' => [
-                    'version' => 2
+                    'created_at' => $startUpdatingTime
                 ]
             ]);
 
@@ -43,34 +36,24 @@ abstract class SynchronizerStrategy extends Injectable
                 $this->db->commit();
                 $this->db->begin();
                 $count = 0;
-                $this->log->info('применили транзакцию удаления первой версии');
+                $this->log->info('применили транзакцию удаления старой версии');
             }
 
-            $contentOfFirstVersion  = Contents::findFirst([
-                    'url = :url: AND version = :version: AND type = :type:',
+            $oldContents = Contents::find([
+                    'url = :url: AND type = :type: AND created_at < :created_at:',
                     'bind' => [
                         'url' => $content->url,
-                        'version' => 1,
-                        'type' => $content->type
+                        'type' => $content->type,
+                        'created_at' => $startUpdatingTime
                     ]
                 ]);
 
-            if ($contentOfFirstVersion) {
-                $contentOfFirstVersion->delete();
-
-                $count++;
-            }
+            $oldContents->delete();
+            $count++;
         }
         $this->db->commit();
 
-        $this->log->info('Удалена первая версия');
-    }
-
-    protected function moveSecondVersionToFirst()
-    {
-        $this->log->info('Начали сброс версии');
-        $this->db->execute("UPDATE contents SET version = ? WHERE version = ?", [1, 2]);
-        $this->log->info('Сбросили версию');
+        $this->log->info('Удалена старая версия');
     }
 
     protected function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_UPDATING)

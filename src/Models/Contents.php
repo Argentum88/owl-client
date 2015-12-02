@@ -34,13 +34,12 @@ class Contents extends \Phalcon\Mvc\Model
     {
         /** @var Contents $content */
         $content = Contents::findFirst([
-                'url = :url: AND state = :state: AND type = :type:',
+                'url = :url: AND type = :type:',
                 'bind' => [
                     'url' => $url,
-                    'state' => Contents::READY,
                     'type' => Urls::CONTENT
                 ],
-                'order' => 'created_at DESC'
+                'order' => 'created_at ASC'
             ]);
 
         if (!$content) {
@@ -49,13 +48,12 @@ class Contents extends \Phalcon\Mvc\Model
 
         /** @var Contents $common */
         $common = Contents::findFirst([
-                'url = :url: AND state = :state: AND type = :type:',
+                'url = :url: AND type = :type:',
                 'bind' => [
                     'url' => ' ',
-                    'state' => Contents::READY,
                     'type' => Urls::COMMON
                 ],
-                'order' => 'created_at DESC'
+                'order' => 'created_at ASC'
             ]);
 
         return json_decode($content->content, true)  + json_decode($common->content, true);

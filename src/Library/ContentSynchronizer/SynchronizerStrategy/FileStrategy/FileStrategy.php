@@ -26,10 +26,10 @@ class FileStrategy extends SynchronizerStrategy
 
     public function updateContent()
     {
+        $startUpdatingTime = date(DATE_ISO8601);
+
         $this->handleFile();
-        $this->setReadyState();
-        $this->deleteFirstVersion($this->fullUpdate);
-        $this->moveSecondVersionToFirst();
+        $this->deleteOldVersion($this->fullUpdate, $startUpdatingTime);
         $this->deleteContents();
         $this->deleteImages();
     }
@@ -165,24 +165,6 @@ class FileStrategy extends SynchronizerStrategy
 
     protected function createContent($data)
     {
-        /** @var Contents $oldContent */
-        $oldContent = Contents::findFirst(
-            [
-                'url = :url: AND state = :state: AND type = :type:',
-                'bind' => [
-                    'url' => !empty($data['url']) ? $data['url'] : ' ',
-                    'state' => Contents::UPDATING,
-                    'type' => $this->typeMap[$data['type']]
-                ]
-            ]
-        );
-
-        if ($oldContent) {
-            $oldContentId = $oldContent->id;
-            $this->log->error("Дубль. Контент с id: $oldContentId существует");
-            return;
-        }
-
         $decodedContent = !empty($data['content'][1]) ? json_decode($data['content'][1], true) : null;
 
         $content = new Contents();
@@ -218,8 +200,7 @@ class FileStrategy extends SynchronizerStrategy
         );
 
         foreach ($urls as $url) {
-            /** @var Contents $contentForDeleting */
-            $contentForDeleting = Contents::findFirst(
+            $contentsForDeleting = Contents::find(
                 [
                     'url = :url: AND type = :type:',
                     'bind' => [
@@ -229,10 +210,8 @@ class FileStrategy extends SynchronizerStrategy
                 ]
             );
 
-            if ($contentForDeleting) {
-                $contentForDeleting->delete();
-                $this->log->info("Удален контент url=" . $contentForDeleting->url);
-            }
+            $contentsForDeleting->delete();
+            $this->log->info("Удален контент");
             $url->delete();
         }
     }

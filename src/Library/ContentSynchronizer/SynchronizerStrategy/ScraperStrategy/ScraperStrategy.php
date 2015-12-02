@@ -20,7 +20,7 @@ class ScraperStrategy extends SynchronizerStrategy
         $this->scrapeContentUrls();
         $this->deleteFilledUrls();
         $this->setReadyState();
-        $this->deleteFirstVersion();
+        $this->deleteOldVersion();
         $this->moveSecondVersionToFirst();
     }
 
