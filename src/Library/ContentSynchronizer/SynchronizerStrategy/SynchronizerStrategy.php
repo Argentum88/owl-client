@@ -21,6 +21,8 @@ abstract class SynchronizerStrategy extends Injectable
             return;
         }
 
+        $this->log->info('Начали удаление старой версии');
+
         /** @var Contents[] $contents */
         $contents = Contents::find([
                 'created_at >= :created_at:',
@@ -29,16 +31,7 @@ abstract class SynchronizerStrategy extends Injectable
                 ]
             ]);
 
-        $count = 0;
-        $this->db->begin();
         foreach ($contents as $content) {
-            if ($count > 100) {
-                $this->db->commit();
-                $this->db->begin();
-                $count = 0;
-                $this->log->info('применили транзакцию удаления старой версии');
-            }
-
             $oldContents = Contents::find([
                     'url = :url: AND type = :type: AND created_at < :created_at:',
                     'bind' => [
@@ -49,11 +42,11 @@ abstract class SynchronizerStrategy extends Injectable
                 ]);
 
             $oldContents->delete();
-            $count++;
+            $url = $content->url;
+            $this->log->info("удалена старая версия $url");
         }
-        $this->db->commit();
 
-        $this->log->info('Удалена старая версия');
+        $this->log->info('Удалили старую версию');
     }
 
     protected function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_UPDATING)
