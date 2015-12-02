@@ -27,6 +27,7 @@ class ImageUrls extends Urls implements RequestProviderInterface
 
         $request = new Request($url);
         $request->urlId = $rawUrl['urlId'];
+        $request->url = $rawUrl['url'];
         return $request;
     }
 
@@ -34,18 +35,15 @@ class ImageUrls extends Urls implements RequestProviderInterface
     {
         /** @var Urls[] $urls */
         $urls = Urls::find([
-                'state = :state: AND type = :type: AND action = :action:',
-                'limit' => 1000,
+                'type = :type: AND action = :action:',
+                'limit' => 1,
                 'bind' => [
-                    'state' => Urls::OPEN,
                     'type'  => Urls::IMAGE,
                     'action' => Urls::FOR_UPDATING
                 ]
             ]);
 
         foreach ($urls as $url) {
-            $url->state = Urls::LOCK;
-            $url->update();
 
             $this->urls[] = ['url' => $url->url, 'urlId' => $url->id];
         }

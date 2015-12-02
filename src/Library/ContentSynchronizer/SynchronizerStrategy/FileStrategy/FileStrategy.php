@@ -61,7 +61,8 @@ class FileStrategy extends SynchronizerStrategy
                     $this->createContent($data);
                 } elseif (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] == 'delete') {
                     $url = !empty($data['url']) ? $data['url'] : ' ';
-                    $this->createUrl($url, Urls::CONTENT, Urls::FOR_DELETING);
+                    $type = $this->typeMap[$data['type']];
+                    $this->createUrl($url, $type, Urls::FOR_DELETING);
                 } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE);
@@ -187,9 +188,8 @@ class FileStrategy extends SynchronizerStrategy
         /** @var Urls[] $urls */
         $urls = Urls::find(
             [
-                'state = :state: AND (type = :type1: OR type = :type2:) AND action = :action:',
+                '(type = :type1: OR type = :type2:) AND action = :action:',
                 'bind' => [
-                    'state'  => Urls::OPEN,
                     'type1'   => Urls::CONTENT,
                     'type2'  => Urls::COMMON,
                     'action' => Urls::FOR_DELETING
@@ -209,7 +209,7 @@ class FileStrategy extends SynchronizerStrategy
             );
 
             $contentsForDeleting->delete();
-            $this->log->info("Удален контент");
+            $this->log->info("Удален контент url= . $url->url");
             $url->delete();
         }
     }
@@ -219,9 +219,8 @@ class FileStrategy extends SynchronizerStrategy
         /** @var Urls[] $urls */
         $urls = Urls::find(
             [
-                'state = :state: AND type = :type: AND action = :action:',
+                'type = :type: AND action = :action:',
                 'bind' => [
-                    'state'  => Urls::OPEN,
                     'type'   => Urls::IMAGE,
                     'action' => Urls::FOR_DELETING
                 ]

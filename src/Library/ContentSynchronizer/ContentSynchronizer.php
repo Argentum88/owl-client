@@ -39,33 +39,22 @@ class ContentSynchronizer extends Injectable
             ]
         );
 
-        $count = 0;
-        $this->db->begin();
         $queue->addListener(
             'complete',
-            function (Event $event) use (&$count) {
+            function (Event $event) {
                 $startCallbackTime = microtime(true);
 
-                if ($count >= 100) {
-
-                    $this->db->commit();
-                    $this->db->begin();
-                    $count = 0;
-                    $this->log->info('применили транзакцию синхронизации картинок');
-                }
-
                 $response = $event->response;
-                $urlId    = $event->request->urlId;
+                $url    = $event->request->url;
                 $httpCode = $response->getInfo(CURLINFO_HTTP_CODE);
                 $info = $response->getInfo();
 
                 if ($httpCode == 200) {
-                    /** @var Urls $urls */
-                    $urls        = Urls::findFirst(
+                    $urls = Urls::find(
                         [
-                            'id = :id:',
+                            'url = :url:',
                             'bind' => [
-                                'id' => $urlId
+                                'url' => $url
                             ]
                         ]
                     );
@@ -76,26 +65,23 @@ class ContentSynchronizer extends Injectable
 
                     $this->log->info("Соханили картинку: TOTAL_TIME={$info['total_time']} NAME_LOOKUP_TIME = {$info['namelookup_time']} CONNECT_TIME={$info['connect_time']} PRE_TRANSFER_TIME={$info['pretransfer_time']} START_TRANSFER_TIME={$info['starttransfer_time']} CALLBACK=$callbackExecutedTime");
                 } else {
-                    /** @var Urls $urls */
-                    $urls        = Urls::findFirst(
+                    $urls = Urls::find(
                         [
-                            'id = :id:',
+                            'url = :url:',
                             'bind' => [
-                                'id' => $urlId
+                                'url' => $url
                             ]
                         ]
                     );
-                    $urls->state = Urls::ERROR;
-                    $urls->save();
+                    $urls->delete();
 
                     $error = '';
                     if ($response->hasError()) {
                         $error = $response->getError()->getMessage();
                     }
 
-                    $this->log->error("Ошибка!!! http code: $httpCode message: $error");
+                    $this->log->error("Ошибка!!! http code: $httpCode message: $error url: $url");
                 }
-                $count++;
             }
         );
 
@@ -104,8 +90,6 @@ class ContentSynchronizer extends Injectable
         } catch (Exception $e) {
             $this->log->notice($e->getMessage());
         }
-
-        $this->db->commit();
     }
 
     public function updateContent()
