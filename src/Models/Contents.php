@@ -4,9 +4,6 @@ namespace Client\Models;
 
 class Contents extends \Phalcon\Mvc\Model
 {
-    const READY = 1;
-    const UPDATING = 2;
-
     public $id;
 
     public $url;
@@ -18,10 +15,6 @@ class Contents extends \Phalcon\Mvc\Model
     public $content;
 
     public $type;
-
-    public $state;
-
-    public $version;
 
     public $created_at;
 

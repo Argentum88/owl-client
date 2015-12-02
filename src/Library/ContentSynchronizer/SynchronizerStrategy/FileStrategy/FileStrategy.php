@@ -173,8 +173,6 @@ class FileStrategy extends SynchronizerStrategy
         $content->action = !empty($decodedContent['action']) ? $decodedContent['action'] : ' ';
         $content->content = !empty($data['content'][1]) ? $data['content'][1] : ' ';
         $content->type = $this->typeMap[$data['type']];
-        $content->state = Contents::UPDATING;
-        $content->version = 2;
 
         if (!$content->create()) {
             $messages = $content->getMessages();
