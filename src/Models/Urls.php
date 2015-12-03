@@ -4,6 +4,11 @@ namespace Client\Models;
 
 class Urls extends \Phalcon\Mvc\Model
 {
+    const OPEN  = 1;
+    const LOCK  = 2;
+    const CLOSE = 3;
+    const ERROR = 4;
+
     const CONTENT = 5;
     const IMAGE   = 6;
     const COMMON  = 7;
@@ -14,6 +19,8 @@ class Urls extends \Phalcon\Mvc\Model
     public $id;
 
     public $url;
+
+    public $state;
 
     public $type;
 

@@ -53,6 +53,7 @@ abstract class SynchronizerStrategy extends Injectable
     {
         $urls         = new Urls();
         $urls->url    = $url;
+        $urls->state  = Urls::OPEN;
         $urls->type   = $type;
         $urls->action = $action;
 
