@@ -23,6 +23,11 @@ class SyncTask extends Task
         (new ContentSynchronizer(new FileStrategy($file, $fullUpdate)))->updateContent();
     }
 
+    public function updateBannerViaScraperAction()
+    {
+        (new ContentSynchronizer(new ScraperStrategy()))->updateBanner();
+    }
+
     public function updateBannerViaFileAction($params)
     {
         $file = $params[3];

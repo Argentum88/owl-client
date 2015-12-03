@@ -90,78 +90,7 @@ class FileStrategy extends SynchronizerStrategy
     protected function createBanner($data)
     {
         $banners = json_decode($data['content'][1], true);
-
-        foreach ($banners['banners'] as $placeName => $place) {
-            if (isset($place['regexp'])) {
-                $bodyContent =
-                    '
-<?php
-    $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
-?>
-
-<?php if (preg_match(\'%s\', $userAgent)): ?>
-%s
-<?php else: ?>
-%s
-<?php endif; ?>
-';
-
-                $bodyContent = sprintf(
-                    $bodyContent,
-                    $place['regexp']['regexp'],
-                    $place['regexp']['body'] ?: '',
-                    $place['default']['body'] ?: ''
-                );
-            } else {
-                $bodyContent = $place['default']['body'] ?: '';
-            }
-
-            file_put_contents($this->config->application->bannersDir . "$placeName.php", $bodyContent);
-        }
-
-        $headContent =
-            '
-<?php
-    $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
-?>
-';
-        file_put_contents($this->config->application->bannersDir . "head.php", $headContent);
-
-        foreach ($banners['banners'] as $placeName => $place) {
-            if (isset($place['regexp'])) {
-                $headContent =
-                    '
-<?php if (preg_match(\'%s\', $userAgent)): ?>
-%s
-<?php else: ?>
-%s
-<?php endif; ?>
-';
-
-                $headContent = sprintf(
-                    $headContent,
-                    $place['regexp']['regexp'],
-                    $place['regexp']['head'] ?: '',
-                    $place['default']['head'] ?: ''
-                );
-            } else {
-                $headContent = $place['default']['head'] ?: '';
-            }
-
-            file_put_contents($this->config->application->bannersDir . "head.php", $headContent, FILE_APPEND);
-        }
-
-        $allFile = scandir($this->config->application->bannersDir);
-        unset($allFile[array_search('.', $allFile)], $allFile[array_search('..', $allFile)], $allFile[array_search('head.php', $allFile)]);
-        $allBanners = array_map(function($file) {
-            $banner = str_replace('.php', '', $file);
-            return $banner;
-        }, $allFile);
-        $updatedBanners = array_keys($banners['banners']);
-        $bannersForDelete = array_diff($allBanners, $updatedBanners);
-        foreach ($bannersForDelete as $bannerForDelete) {
-            unlink($this->config->application->bannersDir . "$bannerForDelete.php");
-        }
+        parent::createBanner($banners);
     }
 
     protected function createContent($data)
