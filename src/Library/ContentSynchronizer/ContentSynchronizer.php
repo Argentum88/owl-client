@@ -26,7 +26,7 @@ class ContentSynchronizer extends Injectable
         $robot->setRequestProvider(new ImageUrls());
 
         $robot->setQueueSize(1);
-        $robot->setMaximumRPM(60);
+        $robot->setMaximumRPM(20);
         $robot->setSpeedMeterFrame(1);
 
         $queue = $robot->getQueue();
