@@ -149,4 +149,13 @@ abstract class SynchronizerStrategy extends Injectable
             unlink($this->config->application->bannersDir . "$bannerForDelete.php");
         }
     }
+
+    protected function nginxCacheClear()
+    {
+        if (!empty($this->config->ngixCacheClearScript)) {
+            $this->log->info('Начали удаление кэша nginx');
+            exec($this->config->ngixCacheClearScript . ' full');
+            $this->log->info('Удалили кэш nginx');
+        }
+    }
 }
