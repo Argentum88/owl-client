@@ -155,6 +155,7 @@ abstract class SynchronizerStrategy extends Injectable
         if (!empty($this->config->ngixCacheClearScript)) {
             $this->log->info('Начали удаление кэша nginx');
             exec($this->config->ngixCacheClearScript . ' full');
+            exec($this->config->ngixCacheClearScript . ' full');
             $this->log->info('Удалили кэш nginx');
         }
     }

@@ -64,6 +64,7 @@ class SitemapTask extends Task
             [
                 'conditions' => "(controller = 'books') AND (action = 'index' OR action = 'list' OR action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
                 'columns'    => "url, created_at",
+                'group'      => "url",
                 'order'      => "created_at DESC"
             ]
         );
