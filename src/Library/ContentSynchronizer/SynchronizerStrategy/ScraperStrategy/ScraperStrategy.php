@@ -27,9 +27,7 @@ class ScraperStrategy extends SynchronizerStrategy
         }
 
         $content = json_decode($response->getContent(), true);
-        $banners = $content['content']['banners'];
-
-        parent::createBanner($banners);
+        parent::createBanner($content);
     }
 
     public function updateContent()
