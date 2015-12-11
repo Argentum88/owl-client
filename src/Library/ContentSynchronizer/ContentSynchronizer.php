@@ -45,7 +45,7 @@ class ContentSynchronizer extends Injectable
             }
 
             $url = str_replace($this->config->imagesCacheDir, '', $file);
-            $this->synchronizerStrategy->createUrl($url, Urls::IMAGE);
+            $this->synchronizerStrategy->createUrl($url, Urls::IMAGE, Urls::FOR_REPLACE_WATERMARK);
         }
         $this->db->commit();
 
