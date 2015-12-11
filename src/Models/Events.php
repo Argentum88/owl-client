@@ -99,7 +99,7 @@ class Events extends \Phalcon\Mvc\Model
             $this->state = self::IMAGE_UPDATING;
             $this->save();
 
-            $task->scrapeImageAction();
+            $task->putWatermarkAction();
         }
 
         $this->state = self::DONE;

@@ -49,7 +49,7 @@ abstract class SynchronizerStrategy extends Injectable
         $this->log->info('Удалили старую версию');
     }
 
-    protected function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_UPDATING)
+    public function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_PUT_WATERMARK)
     {
         $urls         = new Urls();
         $urls->url    = $url;

@@ -34,9 +34,14 @@ class SyncTask extends Task
         (new ContentSynchronizer(new FileStrategy($file)))->updateBanner();
     }
 
-    public function scrapeImageAction()
+    public function putWatermarkAction()
     {
-        (new ContentSynchronizer(new FileStrategy()))->scrapeImage();
+        (new ContentSynchronizer(new FileStrategy()))->putWatermark();
+    }
+
+    public function replaceWatermarkAction()
+    {
+        (new ContentSynchronizer(new FileStrategy()))->replaceWatermark();
     }
 
     public function updateBannerAction()

@@ -5,7 +5,7 @@ namespace Client\Models;
 use cURL\RequestProviderInterface;
 use cURL\Request;
 
-class ImageUrls extends Urls implements RequestProviderInterface
+class ImageUrlsForPutWatermark extends Urls implements RequestProviderInterface
 {
     protected $urls = [];
 
@@ -39,16 +39,23 @@ class ImageUrls extends Urls implements RequestProviderInterface
                 'limit' => 1,
                 'bind' => [
                     'type'  => Urls::IMAGE,
-                    'action' => Urls::FOR_UPDATING,
+                    'action' => Urls::FOR_PUT_WATERMARK,
                     'state' => Urls::OPEN,
                 ]
             ]);
 
         foreach ($urls as $url) {
-            $url->state = Urls::LOCK;
-            $url->update();
+            $urlsForDelete = Urls::find([
+                'url = :url:',
+                'bind' => [
+                    'url'  => $url->url,
+                ]
+            ]);
+            $urlsForDelete->delete();
 
             $this->urls[] = ['url' => $url->url, 'urlId' => $url->id];
         }
+
+        $urls->delete();
     }
 }
