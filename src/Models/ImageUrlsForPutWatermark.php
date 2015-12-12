@@ -55,7 +55,5 @@ class ImageUrlsForPutWatermark extends Urls implements RequestProviderInterface
 
             $this->urls[] = ['url' => $url->url, 'urlId' => $url->id];
         }
-
-        $urls->delete();
     }
 }
