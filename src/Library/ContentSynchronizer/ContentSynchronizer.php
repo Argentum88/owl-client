@@ -49,7 +49,7 @@ class ContentSynchronizer extends Injectable
         }
         $this->db->commit();
 
-        Urls::find('url = /.favicon.ico')->delete();
+        Urls::find("url = '/.favicon.ico'")->delete();
 
         $this->scrapeImage(new ImageUrlsForReplaceWatermark());
     }
