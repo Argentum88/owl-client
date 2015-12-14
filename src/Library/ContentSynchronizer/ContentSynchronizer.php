@@ -29,7 +29,7 @@ class ContentSynchronizer extends Injectable
         $this->scrapeImage(new ImageUrlsForPutWatermark());
     }
 
-    public function replaceWatermark()
+    public function fetchExistingImages()
     {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->config->imagesCacheDir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::LEAVES_ONLY);
 
@@ -51,7 +51,10 @@ class ContentSynchronizer extends Injectable
 
         Urls::find("url = '/favicon.ico'")->delete();
         Urls::find("url = '/.gitignore'")->delete();
+    }
 
+    public function replaceWatermark()
+    {
         $this->scrapeImage(new ImageUrlsForReplaceWatermark());
     }
 

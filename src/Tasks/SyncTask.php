@@ -44,6 +44,11 @@ class SyncTask extends Task
         (new ContentSynchronizer(new FileStrategy()))->replaceWatermark();
     }
 
+    public function fetchExistingImagesAction()
+    {
+        (new ContentSynchronizer(new FileStrategy()))->fetchExistingImages();
+    }
+
     public function updateBannerAction()
     {
         /** @var Events $event */
