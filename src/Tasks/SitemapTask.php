@@ -16,10 +16,10 @@ class SitemapTask extends Task
     public function byOwlAction()
     {
         $domain = rtrim($this->config->application->siteUri, '/');
-        $sitemapsStorage = rtrim($this->config->application->publicDir, '/');
+        $sitemapsStorage = rtrim($this->config->application->sitemapsDir, '/');
 
         $sitemap = new Sitemap($domain);
-        $sitemap->setPath($sitemapsStorage.'/sitemap/');
+        $sitemap->setPath($sitemapsStorage.'/');
 
         $response = (new Owl())->request('/');
         $response = (new Owl())->request($response['static_urls'][SitemapTask::TYPE_BOOKS]);
@@ -46,18 +46,15 @@ class SitemapTask extends Task
                 $sitemap->addItem($ClassSubject['url'], 0.5, null, 'Today');
             }
         }
-
-
-        $sitemap->createSitemapIndex($domain . '/sitemap/', 'Today');
     }
 
     public function byMysqlAction()
     {
         $domain = rtrim($this->config->application->siteUri, '/');
-        $sitemapsStorage = rtrim($this->config->application->publicDir, '/');
+        $sitemapsStorage = rtrim($this->config->application->sitemapsDir, '/');
 
         $sitemap = new Sitemap($domain);
-        $sitemap->setPath($sitemapsStorage.'/sitemap/');
+        $sitemap->setPath($sitemapsStorage.'/');
 
         /** @var Contents[] $contents */
         $contents = Contents::find(
@@ -72,7 +69,5 @@ class SitemapTask extends Task
         foreach ($contents as $content) {
             $sitemap->addItem($content->url, 0.5, null, $content->created_at);
         }
-
-        $sitemap->createSitemapIndex($domain . '/sitemap/', 'Today');
     }
 }
