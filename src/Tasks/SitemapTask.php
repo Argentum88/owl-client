@@ -46,6 +46,9 @@ class SitemapTask extends Task
                 $sitemap->addItem($ClassSubject['url'], 0.5, null, 'Today');
             }
         }
+
+
+        $sitemap->createSitemapIndex($domain . '/sitemaps/', 'Today');
     }
 
     public function byMysqlAction()
@@ -69,5 +72,7 @@ class SitemapTask extends Task
         foreach ($contents as $content) {
             $sitemap->addItem($content->url, 0.5, null, $content->created_at);
         }
+
+        $sitemap->createSitemapIndex($domain . '/sitemaps/', 'Today');
     }
 }
