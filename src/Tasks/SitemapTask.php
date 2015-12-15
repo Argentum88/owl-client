@@ -13,7 +13,7 @@ class SitemapTask extends Task
 {
     const TYPE_BOOKS = 2;
 
-    public function byOwlAction($param)
+    public function byOwlAction($param = null)
     {
         $domain = rtrim($this->config->application->siteUri, '/');
         $sitemapsStorage = rtrim($this->config->application->sitemapsDir, '/');
@@ -53,7 +53,7 @@ class SitemapTask extends Task
         $sitemap->createSitemapIndex($domain . '/sitemaps/', 'Today');
     }
 
-    public function byMysqlAction($param)
+    public function byMysqlAction($param = null)
     {
         $domain = rtrim($this->config->application->siteUri, '/');
         $sitemapsStorage = rtrim($this->config->application->sitemapsDir, '/');
@@ -63,13 +63,13 @@ class SitemapTask extends Task
 
         $conditionAllBooksPage = '';
         if (isset($param[3]) && $param[3] == 'full') {
-            $conditionAllBooksPage = "OR action = 'list";
+            $conditionAllBooksPage = "action = 'list";
         }
 
         /** @var Contents[] $contents */
         $contents = Contents::find(
             [
-                'conditions' => "(controller = 'books') AND (action = 'index' $conditionAllBooksPage OR action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
+                'conditions' => "(controller = 'books') AND ($conditionAllBooksPage OR action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
                 'columns'    => "url, created_at",
                 'group'      => "url",
                 'order'      => "created_at DESC"
