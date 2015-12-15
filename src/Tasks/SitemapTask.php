@@ -13,7 +13,7 @@ class SitemapTask extends Task
 {
     const TYPE_BOOKS = 2;
 
-    public function byOwlAction()
+    public function byOwlAction($param)
     {
         $domain = rtrim($this->config->application->siteUri, '/');
         $sitemapsStorage = rtrim($this->config->application->sitemapsDir, '/');
@@ -24,7 +24,9 @@ class SitemapTask extends Task
         $response = (new Owl())->request('/');
         $response = (new Owl())->request($response['static_urls'][SitemapTask::TYPE_BOOKS]);
 
-        $sitemap->addItem($response['static_urls'][SitemapTask::TYPE_BOOKS], 0.5, null, 'Today');
+        if (isset($param[3]) && $param[3] == 'full') {
+            $sitemap->addItem($response['static_urls'][SitemapTask::TYPE_BOOKS], 0.5, null, 'Today');
+        }
 
         foreach ($response['books'] as $book) {
 
@@ -51,7 +53,7 @@ class SitemapTask extends Task
         $sitemap->createSitemapIndex($domain . '/sitemaps/', 'Today');
     }
 
-    public function byMysqlAction()
+    public function byMysqlAction($param)
     {
         $domain = rtrim($this->config->application->siteUri, '/');
         $sitemapsStorage = rtrim($this->config->application->sitemapsDir, '/');
@@ -59,10 +61,15 @@ class SitemapTask extends Task
         $sitemap = new Sitemap($domain);
         $sitemap->setPath($sitemapsStorage.'/');
 
+        $conditionAllBooksPage = '';
+        if (isset($param[3]) && $param[3] == 'full') {
+            $conditionAllBooksPage = "OR action = 'list";
+        }
+
         /** @var Contents[] $contents */
         $contents = Contents::find(
             [
-                'conditions' => "(controller = 'books') AND (action = 'index' OR action = 'list' OR action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
+                'conditions' => "(controller = 'books') AND (action = 'index' $conditionAllBooksPage OR action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
                 'columns'    => "url, created_at",
                 'group'      => "url",
                 'order'      => "created_at DESC"
