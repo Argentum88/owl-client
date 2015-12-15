@@ -63,13 +63,13 @@ class SitemapTask extends Task
 
         $conditionAllBooksPage = '';
         if (isset($param[3]) && $param[3] == 'full') {
-            $conditionAllBooksPage = "action = 'list";
+            $conditionAllBooksPage = "action = 'list OR";
         }
 
         /** @var Contents[] $contents */
         $contents = Contents::find(
             [
-                'conditions' => "(controller = 'books') AND ($conditionAllBooksPage OR action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
+                'conditions' => "(controller = 'books') AND ($conditionAllBooksPage action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
                 'columns'    => "url, created_at",
                 'group'      => "url",
                 'order'      => "created_at DESC"
