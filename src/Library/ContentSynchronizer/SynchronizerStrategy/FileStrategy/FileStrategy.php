@@ -31,8 +31,8 @@ class FileStrategy extends SynchronizerStrategy
         $this->handleFile();
         $this->deleteOldVersion($this->fullUpdate, $startUpdatingTime);
         $this->deleteContents();
-        $this->deleteImages();
         $this->nginxCacheClear();
+        $this->deleteImages();
     }
 
     public function updateBanner()
