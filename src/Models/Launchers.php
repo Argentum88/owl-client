@@ -9,6 +9,7 @@ abstract class Launchers extends Model
     const PRIMARY = 1;
     const SECONDARY = 2;
     const UPDATE_CONTENT = 3;
+    const UPDATE_BANNER = 4;
 
     public $id;
 
