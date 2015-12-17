@@ -63,7 +63,7 @@ class SitemapTask extends Task
 
         $conditionAllBooksPage = '';
         if (isset($param[3]) && $param[3] == 'full') {
-            $conditionAllBooksPage = "action = 'list OR";
+            $conditionAllBooksPage = "action = 'list' OR";
         }
 
         /** @var Contents[] $contents */
