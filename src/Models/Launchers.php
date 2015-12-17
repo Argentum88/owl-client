@@ -51,14 +51,14 @@ abstract class Launchers extends Model
             "type = :type: AND task = :task:",
             'bind' => [
                 'type' => self::PRIMARY,
-                'task' => self::UPDATE_CONTENT
+                'task' => $this->task
             ]
         ]);
         $secondaryLauncher =  self::findFirst([
             "type = :type: AND task = :task:",
             'bind' => [
                 'type' => self::SECONDARY,
-                'task' => self::UPDATE_CONTENT
+                'task' => $this->task
             ]
         ]);
 
