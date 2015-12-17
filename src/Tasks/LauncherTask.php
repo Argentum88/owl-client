@@ -10,6 +10,6 @@ class LauncherTask extends Task
     public function launchUpdateContentAction()
     {
         $launcher = new UpdateContentLaunchers();
-        $launcher->launch();
+        $launcher->start();
     }
 }

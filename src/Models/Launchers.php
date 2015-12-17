@@ -6,27 +6,54 @@ use Phalcon\Mvc\Model;
 
 abstract class Launchers extends Model
 {
-    const UPDATE_CONTENT = 1;
+    const PRIMARY = 1;
+    const SECONDARY = 2;
+    const UPDATE_CONTENT = 3;
 
     public $id;
 
     public $task;
 
-    public $index;
+    public $type;
 
-    abstract public function launch();
+    abstract protected function launchTask();
 
-    protected function actualizeLaunchIndex()
+    public function start()
     {
-        $countExistingLaunchers =  self::count("task = {$this->task}");
+        $startTime = time();
 
-        if ($countExistingLaunchers >= 2 && $this->index === null) {
-            throw new \Exception("Launcher'ов больше одного");
-        } elseif ($countExistingLaunchers == 1) {
-            $this->index = 2;
+        $this->actualizeLaunchType();
+        while (time() < ($startTime + 58)) {
+            if ($this->type == self::PRIMARY) {
+
+                try {
+                    $this->launchTask();
+                } catch (\Exception $e) {
+                    $this->log->error($e->getMessage());
+                }
+            }
+
+            $this->actualizeLaunchType();
+            sleep(1);
+        }
+
+        $this->delete();
+    }
+
+    protected function actualizeLaunchType()
+    {
+        $primaryLauncher =  self::findFirst("type = " . self::PRIMARY);
+        $secondaryLauncher =  self::findFirst("type = " . self::SECONDARY);
+
+        $launcherIsStarted = !empty($this->type) ? true : false;
+
+        if ($secondaryLauncher && !$launcherIsStarted) {
+            throw new \Exception("Launcher'ов больше не надо");
+        } elseif ($primaryLauncher && !$launcherIsStarted) {
+            $this->type = self::SECONDARY;
             $this->save();
-        } elseif ($countExistingLaunchers == 0 || ($countExistingLaunchers == 1 && $this->index == 2)) {
-            $this->index = 1;
+        } elseif ((!$primaryLauncher && !$secondaryLauncher) || (!$primaryLauncher && $secondaryLauncher)) {
+            $this->type = self::PRIMARY;
             $this->save();
         }
     }
