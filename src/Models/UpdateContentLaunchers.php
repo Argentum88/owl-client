@@ -13,4 +13,9 @@ class UpdateContentLaunchers extends Launchers
         $sync = new SyncTask();
         return $sync->updateContentAction();
     }
+
+    public function getSource()
+    {
+        return "launchers";
+    }
 }

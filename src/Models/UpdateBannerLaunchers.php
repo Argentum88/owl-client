@@ -13,4 +13,9 @@ class UpdateBannerLaunchers extends Launchers
         $sync = new SyncTask();
         return $sync->updateBannerAction();
     }
+
+    public function getSource()
+    {
+        return "launchers";
+    }
 }
