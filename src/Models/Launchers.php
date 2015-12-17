@@ -42,8 +42,20 @@ abstract class Launchers extends Model
 
     protected function actualizeLaunchType()
     {
-        $primaryLauncher =  self::findFirst("type = " . self::PRIMARY);
-        $secondaryLauncher =  self::findFirst("type = " . self::SECONDARY);
+        $primaryLauncher =  self::findFirst([
+            "type = :type: AND task = :task:",
+            'bind' => [
+                'type' => self::PRIMARY,
+                'task' => self::UPDATE_CONTENT
+            ]
+        ]);
+        $secondaryLauncher =  self::findFirst([
+            "type = :type: AND task = :task:",
+            'bind' => [
+                'type' => self::SECONDARY,
+                'task' => self::UPDATE_CONTENT
+            ]
+        ]);
 
         $launcherIsStarted = !empty($this->type) ? true : false;
 
