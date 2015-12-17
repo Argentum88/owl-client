@@ -83,8 +83,7 @@ class FileStrategy extends SynchronizerStrategy
             fclose($handle);
             $this->db->commit();
         } else {
-            $this->log->error("не удалось открыть файл");
-            exit();
+            throw new \Exception("не удалось открыть файл");
         }
     }
 

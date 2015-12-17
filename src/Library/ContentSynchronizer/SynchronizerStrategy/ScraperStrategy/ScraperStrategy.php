@@ -22,8 +22,7 @@ class ScraperStrategy extends SynchronizerStrategy
         $httpCode = $response->getInfo(CURLINFO_HTTP_CODE);
         if ($response->hasError() || $httpCode != 200) {
             $error = $response->getError()->getMessage();
-            $this->log->error("Ошибка!!! http code: $httpCode message: $error url: $url");
-            exit;
+            throw new \Exception("Ошибка!!! http code: $httpCode message: $error url: $url");
         }
 
         $content = json_decode($response->getContent(), true);

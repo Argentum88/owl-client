@@ -43,7 +43,7 @@ class Events extends \Phalcon\Mvc\Model
             $this->getDI()->get('log')->error("не удалось открыть файл " . $this->getDI()->get('config')->owl . $patch);
             $this->state = self::ERROR;
             $this->save();
-            exit;
+            throw new \Exception();
         }
 
         exec("bzip2 -d $compressedFile");
@@ -67,7 +67,7 @@ class Events extends \Phalcon\Mvc\Model
 
         if ($event) {
             $this->getDI()->get('log')->error("Предыдущие обновление контента не завершено");
-            exit();
+            return;
         }
 
         $this->getDI()->get('log')->info('начали синхронизацию контента');
