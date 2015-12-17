@@ -28,7 +28,11 @@ abstract class Launchers extends Model
             if ($this->type == self::PRIMARY) {
 
                 try {
-                    $this->launchTask();
+
+                    if ($this->launchTask()) {
+                        continue;
+                    }
+
                 } catch (\Exception $e) {
                     $this->log->error($e->getMessage());
                 }

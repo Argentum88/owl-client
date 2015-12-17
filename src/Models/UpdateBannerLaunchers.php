@@ -11,6 +11,6 @@ class UpdateBannerLaunchers extends Launchers
     protected function launchTask()
     {
         $sync = new SyncTask();
-        $sync->updateBannerAction();
+        return $sync->updateBannerAction();
     }
 }

@@ -53,6 +53,7 @@ class Events extends \Phalcon\Mvc\Model
 
     /**
      * @param \Client\Tasks\SyncTask $task
+     * @return bool
      */
     public function processUpdateContent($task)
     {
@@ -67,7 +68,7 @@ class Events extends \Phalcon\Mvc\Model
 
         if ($event) {
             $this->getDI()->get('log')->error("Предыдущие обновление контента не завершено");
-            return;
+            return false;
         }
 
         $this->getDI()->get('log')->info('начали синхронизацию контента');
@@ -104,10 +105,13 @@ class Events extends \Phalcon\Mvc\Model
 
         $this->state = self::DONE;
         $this->save();
+
+        return true;
     }
 
     /**
      * @param \Client\Tasks\SyncTask $task
+     * @return bool
      */
     public function processUpdateBanner($task)
     {
@@ -120,5 +124,7 @@ class Events extends \Phalcon\Mvc\Model
         $this->getDI()->get('log')->info('закончили синхронизацию баннеров');
         $this->state = self::DONE;
         $this->save();
+
+        return true;
     }
 }

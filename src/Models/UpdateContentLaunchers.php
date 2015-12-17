@@ -11,6 +11,6 @@ class UpdateContentLaunchers extends Launchers
     protected function launchTask()
     {
         $sync = new SyncTask();
-        $sync->updateContentAction();
+        return $sync->updateContentAction();
     }
 }

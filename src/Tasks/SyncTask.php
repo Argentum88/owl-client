@@ -62,8 +62,10 @@ class SyncTask extends Task
         ]);
 
         if ($event) {
-            $event->processUpdateBanner($this);
+            return $event->processUpdateBanner($this);
         }
+
+        return false;
     }
 
     public function updateContentAction()
@@ -80,7 +82,9 @@ class SyncTask extends Task
         ]);
 
         if ($event) {
-            $event->processUpdateContent($this);
+            return $event->processUpdateContent($this);
         }
+
+        return false;
     }
 }
