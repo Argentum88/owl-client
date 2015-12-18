@@ -7,7 +7,8 @@ class Events extends \Phalcon\Mvc\Model
     const FULL_UPDATE_CONTENT  = 8;
     const UPDATE_CONTENT  = 1;
     const UPDATE_BANNER = 2;
-    const CACHE_IMAGE = 9;
+    const CACHE_IMAGE_AFTER_PARTIAL_UPDATE = 9;
+    const CACHE_IMAGE_AFTER_FULL_UPDATE = 11;
 
     const OPEN = 3;
     const CONTENT_UPDATING = 4;
@@ -86,7 +87,11 @@ class Events extends \Phalcon\Mvc\Model
 
         $this->getDI()->get('log')->info('закончили синхронизацию контента');
 
-        $this->type = self::CACHE_IMAGE;
+        if ($fullUpdate) {
+            $this->type = self::CACHE_IMAGE_AFTER_FULL_UPDATE;
+        } else {
+            $this->type = self::CACHE_IMAGE_AFTER_PARTIAL_UPDATE;
+        }
         $this->state = self::OPEN;
         $this->save();
 

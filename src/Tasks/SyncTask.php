@@ -92,9 +92,10 @@ class SyncTask extends Task
     {
         /** @var Events $event */
         $event = Events::findFirst([
-            'type = :type: AND state = :state:',
+            '(type = :type1: OR type = :type2:) AND state = :state:',
             'bind' => [
-                'type'  => Events::CACHE_IMAGE,
+                'type1' => Events::CACHE_IMAGE_AFTER_PARTIAL_UPDATE,
+                'type2' => Events::CACHE_IMAGE_AFTER_FULL_UPDATE,
                 'state' => Events::OPEN,
             ],
             'order' => 'created_at ASC'
