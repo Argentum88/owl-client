@@ -18,7 +18,7 @@ abstract class SynchronizerStrategy extends Injectable
             $this->db->execute("DELETE FROM contents WHERE created_at < ?", [$startUpdatingTime]);
             $this->log->info('Удалили старую версию');
 
-            sleep(60);
+            sleep(120);
             return;
         }
 
