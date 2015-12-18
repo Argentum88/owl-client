@@ -7,10 +7,12 @@ class Events extends \Phalcon\Mvc\Model
     const FULL_UPDATE_CONTENT  = 8;
     const UPDATE_CONTENT  = 1;
     const UPDATE_BANNER = 2;
+    const CACHE_IMAGE = 9;
 
     const OPEN = 3;
     const CONTENT_UPDATING = 4;
-    const IMAGE_UPDATING = 5;
+    const BANNER_UPDATING = 10;
+    const IMAGE_CACHING = 5;
     const DONE = 6;
     const ERROR = 7;
 
@@ -58,10 +60,8 @@ class Events extends \Phalcon\Mvc\Model
     public function processUpdateContent($task)
     {
         $event = self::findFirst([
-            '(type = :type1: OR type = :type2:) AND (state = :state:)',
+            'state = :state:',
             'bind' => [
-                'type1'  => self::UPDATE_CONTENT,
-                'type2'  => self::FULL_UPDATE_CONTENT,
                 'state' => self::CONTENT_UPDATING,
             ]
         ]);
@@ -86,24 +86,8 @@ class Events extends \Phalcon\Mvc\Model
 
         $this->getDI()->get('log')->info('закончили синхронизацию контента');
 
-        $imageUpdatingEvent = self::findFirst(
-            [
-                'state = :state:',
-                'bind' => [
-                    'state' => self::IMAGE_UPDATING,
-                ]
-            ]
-        );
-
-        if (!$imageUpdatingEvent) {
-
-            $this->state = self::IMAGE_UPDATING;
-            $this->save();
-
-            $task->putWatermarkAction();
-        }
-
-        $this->state = self::DONE;
+        $this->type = self::CACHE_IMAGE;
+        $this->state = self::OPEN;
         $this->save();
 
         return true;
@@ -115,13 +99,57 @@ class Events extends \Phalcon\Mvc\Model
      */
     public function processUpdateBanner($task)
     {
+        $event = self::findFirst([
+            'state = :state:',
+            'bind' => [
+                'state' => self::BANNER_UPDATING,
+            ]
+        ]);
+
+        if ($event) {
+            $this->getDI()->get('log')->error("Предыдущие обновление баннеров не завершено");
+            return false;
+        }
+
         $this->getDI()->get('log')->info('начали синхронизацию баннеров');
+
+        $this->state = self::BANNER_UPDATING;
+        $this->save();
 
         $file = $this->getFile();
         $task->updateBannerViaFileAction([3 => $file]);
         unlink($file);
 
         $this->getDI()->get('log')->info('закончили синхронизацию баннеров');
+        $this->state = self::DONE;
+        $this->save();
+
+        return true;
+    }
+
+    /**
+     * @param \Client\Tasks\SyncTask $task
+     * @return bool
+     */
+    public function processCacheImage($task)
+    {
+        $event = self::findFirst([
+            'state = :state:',
+            'bind' => [
+                'state' => self::IMAGE_CACHING,
+            ]
+        ]);
+
+        if ($event) {
+            $this->getDI()->get('log')->error("Картинки уже кэшируются");
+            return false;
+        }
+
+        $this->state = self::IMAGE_CACHING;
+        $this->save();
+
+        $task->putWatermarkAction();
+
         $this->state = self::DONE;
         $this->save();
 

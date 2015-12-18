@@ -87,4 +87,23 @@ class SyncTask extends Task
 
         return false;
     }
+
+    public function cacheImageAction()
+    {
+        /** @var Events $event */
+        $event = Events::findFirst([
+            'type = :type: AND state = :state:',
+            'bind' => [
+                'type'  => Events::CACHE_IMAGE,
+                'state' => Events::OPEN,
+            ],
+            'order' => 'created_at ASC'
+        ]);
+
+        if ($event) {
+            return $event->processCacheImage($this);
+        }
+
+        return false;
+    }
 }

@@ -10,6 +10,7 @@ abstract class Launchers extends Model
     const SECONDARY = 2;
     const UPDATE_CONTENT = 3;
     const UPDATE_BANNER = 4;
+    const CACHE_IMAGE = 5;
 
     public $id;
 
