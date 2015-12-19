@@ -33,7 +33,10 @@ class Bulk extends Injectable
     protected function putInBuffers($placeholder, $row)
     {
         $this->placeholderBuffer[] = $placeholder;
-        $this->rowBuffer = array_merge($this->rowBuffer, $row);
+
+        foreach ($row as $item) {
+            $this->rowBuffer[] = $item;
+        }
 
         if (count($this->placeholderBuffer) >= $this->bufferSize) {
             $this->flash();
