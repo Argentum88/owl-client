@@ -6,7 +6,9 @@ use Phalcon\Di\Injectable;
 
 class Bulk extends Injectable
 {
-    protected $buffer = [];
+    protected $placeholderBuffer = [];
+
+    protected $rowBuffer = [];
 
     protected $table;
 
@@ -21,23 +23,19 @@ class Bulk extends Injectable
         $this->bufferSize = $bufferSize;
     }
 
-    public function insert(array $data)
+    public function insert(array $row)
     {
-        $row = '(';
-        foreach ($data as $item) {
-            $row .= "'$item', ";
-        }
-        $row = rtrim($row, ', ');
-        $row .= ')';
+        $placeholder = '(' . rtrim(str_repeat('?,', count($row)), ',') . ')';
 
-        $this->push($row);
+        $this->putInBuffers($placeholder, $row);
     }
 
-    protected function push($row)
+    protected function putInBuffers($placeholder, $row)
     {
-        $this->buffer[] = $row;
+        $this->placeholderBuffer[] = $placeholder;
+        $this->rowBuffer = array_merge($this->rowBuffer, $row);
 
-        if (count($this->buffer) >= $this->bufferSize) {
+        if (count($this->placeholderBuffer) >= $this->bufferSize) {
             $this->flash();
         }
     }
@@ -45,15 +43,15 @@ class Bulk extends Injectable
     public function flash()
     {
         $columns = implode(', ', $this->columns);
-        $values = implode(', ', $this->buffer);
+        $placeholders = implode(', ', $this->placeholderBuffer);
 
         try {
-            $this->db->execute("INSERT INTO {$this->table} ($columns) VALUES $values");
+            $this->db->execute("INSERT INTO {$this->table} ($columns) VALUES $placeholders", $this->rowBuffer);
         } catch (\Exception $e) {
             $this->log->error($e->getMessage());
         }
 
-        $this->buffer = [];
+        $this->placeholderBuffer = $this->rowBuffer = [];
 
         $this->log->info('применили пачку');
     }
