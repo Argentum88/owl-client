@@ -46,7 +46,12 @@ class Bulk extends Injectable
     {
         $columns = implode(', ', $this->columns);
         $values = implode(', ', $this->buffer);
-        $this->db->execute("INSERT INTO {$this->table} ($columns) VALUES $values");
+
+        try {
+            $this->db->execute("INSERT INTO {$this->table} ($columns) VALUES $values");
+        } catch (\Exception $e) {
+            $this->log->error($e->getMessage());
+        }
 
         $this->buffer = [];
 

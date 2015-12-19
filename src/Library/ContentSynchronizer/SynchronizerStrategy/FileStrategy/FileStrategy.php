@@ -115,7 +115,7 @@ class FileStrategy extends SynchronizerStrategy
             $this->db->execute("DELETE FROM contents WHERE created_at < ?", [$startUpdatingTime]);
             $this->log->info('Удалили старую версию');
 
-            sleep(120);
+            //sleep(120);
             return;
         }
 
@@ -149,14 +149,14 @@ class FileStrategy extends SynchronizerStrategy
 
     public function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_PUT_WATERMARK)
     {
-        $url = [];
-        $url[] = $url;
-        $url[] = Urls::OPEN;
-        $url[] = $type;
-        $url[] = $action;
-        $url[] = date(DATE_ISO8601);
+        $urls = [];
+        $urls[] = $url;
+        $urls[] = Urls::OPEN;
+        $urls[] = $type;
+        $urls[] = $action;
+        $urls[] = date(DATE_ISO8601);
 
-        $this->bulkUrl->insert($url);
+        $this->bulkUrl->insert($urls);
     }
 
     protected function deleteContents()
