@@ -45,6 +45,10 @@ class Bulk extends Injectable
 
     public function flash()
     {
+        if (count($this->placeholderBuffer) == 0) {
+            return;
+        }
+
         $columns = implode(', ', $this->columns);
         $placeholders = implode(', ', $this->placeholderBuffer);
 
