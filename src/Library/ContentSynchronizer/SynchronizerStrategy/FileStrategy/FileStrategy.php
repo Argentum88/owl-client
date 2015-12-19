@@ -2,6 +2,7 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
+use Client\Library\Bulk;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
 use Client\Models\Urls;
 use Client\Models\Contents;
@@ -18,10 +19,17 @@ class FileStrategy extends SynchronizerStrategy
 
     protected $fullUpdate = false;
 
+    protected $bulkUrl;
+
+    protected $bulkContent;
+
     public function __construct($file = null, $fullUpdate = false)
     {
         $this->file = $file;
         $this->fullUpdate = $fullUpdate;
+
+        $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
+        $this->bulkContent = new Bulk('contents', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
     }
 
     public function updateContent()
@@ -44,17 +52,8 @@ class FileStrategy extends SynchronizerStrategy
     {
         $handle = fopen($this->file, "r");
         if ($handle) {
-            $count = 0;
-            $this->db->begin();
 
             while (($line = fgets($handle)) !== false) {
-                $count++;
-                if ($count > 1000) {
-                    $this->db->commit();
-                    $this->db->begin();
-                    $count = 1;
-                    $this->log->info('применили транзакцию синхронизации контента');
-                }
 
                 $data = json_decode($line, true);
 
@@ -81,7 +80,8 @@ class FileStrategy extends SynchronizerStrategy
             }
 
             fclose($handle);
-            $this->db->commit();
+            $this->bulkContent->flash();
+            $this->bulkUrl->flash();
         } else {
             throw new \Exception("не удалось открыть файл");
         }
@@ -97,19 +97,15 @@ class FileStrategy extends SynchronizerStrategy
     {
         $decodedContent = !empty($data['content'][1]) ? json_decode($data['content'][1], true) : null;
 
-        $content = new Contents();
-        $content->url = !empty($data['url']) ? $data['url'] : ' ';
-        $content->controller = !empty($decodedContent['controller']) ? $decodedContent['controller'] : ' ';
-        $content->action = !empty($decodedContent['action']) ? $decodedContent['action'] : ' ';
-        $content->content = !empty($data['content'][1]) ? $data['content'][1] : ' ';
-        $content->type = $this->typeMap[$data['type']];
+        $content = [];
+        $content[] = !empty($data['url']) ? $data['url'] : ' ';
+        $content[] = !empty($decodedContent['controller']) ? $decodedContent['controller'] : ' ';
+        $content[] = !empty($decodedContent['action']) ? $decodedContent['action'] : ' ';
+        $content[] = !empty($data['content'][1]) ? $data['content'][1] : ' ';
+        $content[] = $this->typeMap[$data['type']];
+        $content[] = date(DATE_ISO8601);
 
-        if (!$content->create()) {
-            $messages = $content->getMessages();
-            foreach ($messages as $message) {
-                $this->log->error($message->getMessage());
-            }
-        }
+        $this->bulkContent->insert($content);
     }
 
     protected function deleteOldVersion($all = true, $startUpdatingTime)
@@ -153,28 +149,14 @@ class FileStrategy extends SynchronizerStrategy
 
     public function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_PUT_WATERMARK)
     {
-        $urls         = new Urls();
-        $urls->url    = $url;
-        $urls->state  = Urls::OPEN;
-        $urls->type   = $type;
-        $urls->action = $action;
+        $url = [];
+        $url[] = $url;
+        $url[] = Urls::OPEN;
+        $url[] = $type;
+        $url[] = $action;
+        $url[] = date(DATE_ISO8601);
 
-        try {
-            if ($urls->create()) {
-                return true;
-            }
-
-            $messages = $urls->getMessages();
-            foreach ($messages as $message) {
-                $this->log->error($message->getMessage());
-            }
-
-            return false;
-        } catch (\Exception $e) {
-            $this->log->error($e->getMessage());
-
-            return false;
-        }
+        $this->bulkUrl->insert($url);
     }
 
     protected function deleteContents()
