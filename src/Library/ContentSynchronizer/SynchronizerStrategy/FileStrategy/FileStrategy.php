@@ -112,10 +112,13 @@ class FileStrategy extends SynchronizerStrategy
     {
         if ($all) {
             $this->log->info('Начали удаление старой версии');
-            $this->db->execute("DELETE FROM contents WHERE created_at < ?", [$startUpdatingTime]);
-            $this->log->info('Удалили старую версию');
 
-            //sleep(120);
+            do {
+                $result = $this->db->query("DELETE FROM contents WHERE created_at < ? LIMIT 1000", [$startUpdatingTime]);
+                usleep(1000);
+            } while($result->numRows() > 0);
+
+            $this->log->info('Удалили старую версию');
             return;
         }
 
