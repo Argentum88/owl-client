@@ -77,6 +77,8 @@ class FileStrategy extends SynchronizerStrategy
                     $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
                     continue;
                 }
+
+                usleep(200); //снижение нагрузки на cpu
             }
 
             fclose($handle);
@@ -115,7 +117,7 @@ class FileStrategy extends SynchronizerStrategy
 
             do {
                 $result = $this->db->query("DELETE FROM contents WHERE created_at < ? LIMIT 1000", [$startUpdatingTime]);
-                usleep(1000);
+                usleep(1000); //неблокируем select
             } while($result->numRows() > 0);
 
             $this->log->info('Удалили старую версию');
