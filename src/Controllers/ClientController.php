@@ -18,6 +18,10 @@ class ClientController extends ControllerBase
 
         if ($response['success']) {
 
+            if ($response['controller'] == 'redirect') {
+                return $this->response->redirect($response['location'], false, $response['code']);
+            }
+
             $this->dispatcher->forward([
                     'controller' => $response['controller'],
                     'action'     => $response['action'],
