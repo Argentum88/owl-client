@@ -31,6 +31,10 @@ class SitemapTask extends Task
         foreach ($response['books'] as $book) {
 
             $sitemap->addItem($book['url'], 0.5, null, 'Today');
+
+            if (!$book['is_single_page']) {
+                $this->addTasks($sitemap, $book['structure']);
+            }
         }
 
         $classIds = array_keys($response['intersects']['classes']);
@@ -53,6 +57,17 @@ class SitemapTask extends Task
         $sitemap->createSitemapIndex($domain . '/sitemaps/', 'Today');
     }
 
+    protected function addTasks(Sitemap $sitemap, $structure)
+    {
+        foreach ($structure['tasks'] as $task) {
+            $sitemap->addItem($task['url'], 0.5, null, 'Today');
+        }
+
+        if (!empty($structure['topics'])) {
+            $this->addTasks($sitemap, $structure['topics']);
+        }
+    }
+
     public function byMysqlAction($param = null)
     {
         $domain = rtrim($this->config->application->siteUri, '/');
@@ -61,23 +76,40 @@ class SitemapTask extends Task
         $sitemap = new Sitemap($domain);
         $sitemap->setPath($sitemapsStorage.'/');
 
-        $conditionAllBooksPage = '';
-        if (isset($param[3]) && $param[3] == 'full') {
-            $conditionAllBooksPage = "action = 'list' OR";
-        }
-
         /** @var Contents[] $contents */
         $contents = Contents::find(
             [
-                'conditions' => "(controller = 'books') AND ($conditionAllBooksPage action = 'listByClass' OR action = 'booksBySubject' OR action = 'listByBoth' OR action = 'view')",
-                'columns'    => "url, created_at",
+                'columns'    => "url, content, created_at",
                 'group'      => "url",
                 'order'      => "created_at DESC"
             ]
         );
 
+        $count = 0;
         foreach ($contents as $content) {
-            $sitemap->addItem($content->url, 0.5, null, $content->created_at);
+
+            $count++;
+            if ($count % 1000 == 0) {
+                $this->log->info("обрабатано $count строк");
+            }
+
+            $data = json_decode($content->content, true);
+
+            if (isset($param[3]) && $param[3] == 'full') {
+                $condition = $data['controller'] == 'books' && ($data['action'] == 'listByClass' || $data['action'] == 'booksBySubject' || $data['action'] == 'listByBoth' || $data['action'] == 'view'|| $data['action'] == 'list');
+            } else {
+                $condition = $data['controller'] == 'books' && ($data['action'] == 'listByClass' || $data['action'] == 'booksBySubject' || $data['action'] == 'listByBoth' || $data['action'] == 'view'|| $data['action'] == 'list');
+
+            }
+
+            if ($condition) {
+                $sitemap->addItem($content->url, 0.5, null, $content->created_at);
+                continue;
+            }
+
+            if ($data['controller'] == 'books' && $data['action'] == 'viewTask' && $data['book']['is_single_page'] == false) {
+                $sitemap->addItem($content->url, 0.5, null, $content->created_at);
+            }
         }
 
         $sitemap->createSitemapIndex($domain . '/sitemaps/', 'Today');
