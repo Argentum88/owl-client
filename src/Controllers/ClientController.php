@@ -12,6 +12,12 @@ class ClientController extends ControllerBase
     public function forwardAction()
     {
         $uri = $this->request->getURI();
+
+        $pos = strpos($uri, '#');
+        if ($pos !== false) {
+            $uri = substr($uri, 0, $pos);
+        }
+
         $response = (new Owl())->request($uri, $this->config->useOwlServer);
 
         PH_DEBUG ? Debugger::dumpBar($response) : null;
