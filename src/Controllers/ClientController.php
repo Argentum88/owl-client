@@ -18,10 +18,11 @@ class ClientController extends ControllerBase
             $uri = substr($uri, 0, $pos);
         }
 
-        /*$pos = strpos($uri, '?');
+        $pos = strpos($uri, '?');
         if ($pos !== false) {
             $uri = substr($uri, 0, $pos);
-        }*/
+            return $this->response->redirect($uri, false, 301);
+        }
 
         $response = (new Owl())->request($uri, $this->config->useOwlServer);
 
