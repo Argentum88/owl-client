@@ -58,17 +58,16 @@ class ClientController extends ControllerBase
         $clear = $this->request->getPost('clear');
 
         if ($clear == 1) {
-            $fullUpdateEvent = Events::findFirst([
-                'type = :type: AND state = :state:',
+            $updateContentEvents = Events::find([
+                '(type = :type1: OR type = :type2:) AND state = :state:',
                 'bind' => [
-                    'type'  => Events::FULL_UPDATE_CONTENT,
-                    'state' => Events::OPEN,
+                    'type1'  => Events::UPDATE_CONTENT,
+                    'type2'  => Events::FULL_UPDATE_CONTENT,
+                    'state'  => Events::OPEN,
                 ]
             ]);
 
-            if ($fullUpdateEvent) {
-                $fullUpdateEvent->delete();
-            }
+            $updateContentEvents->delete();
         }
 
         $event = new Events();
