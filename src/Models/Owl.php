@@ -47,7 +47,8 @@ class Owl extends Injectable
             return $content + $common;
         }
 
-        $response = Contents::get($url);
+        $response = ElasticsearchContents::get($url);
+        //$response = Contents::get($url);
 
         return $response;
     }
