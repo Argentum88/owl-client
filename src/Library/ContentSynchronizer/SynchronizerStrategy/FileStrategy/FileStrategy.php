@@ -4,6 +4,7 @@ namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\Bulk;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
+use Client\Library\ElasticsearchBulk;
 use Client\Models\Urls;
 use Client\Models\Contents;
 
@@ -29,7 +30,7 @@ class FileStrategy extends SynchronizerStrategy
         $this->fullUpdate = $fullUpdate;
 
         $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
-        $this->bulkContent = new Bulk('contents', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
+        $this->bulkContent = new ElasticsearchBulk();
     }
 
     public function updateContent()
