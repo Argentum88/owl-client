@@ -48,7 +48,7 @@ class ElasticsearchBulk extends Injectable
         }
         
         try {
-            $this->elastica->getIndex('owl')->getType('owl')->updateDocuments($this->rowBuffer);
+            $this->elastica->getIndex('owl')->getType('owl')->addDocuments($this->rowBuffer);
         } catch (\Exception $e) {
             $this->log->error($e->getMessage());
         }
