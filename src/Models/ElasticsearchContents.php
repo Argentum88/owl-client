@@ -2,6 +2,8 @@
 
 namespace Client\Models;
 
+use cURL\Request;
+
 /**
  * Class ElasticsearchContents
  * @package Client\Models
@@ -10,36 +12,48 @@ class ElasticsearchContents
 {
     public static function get($url)
     {
-        $bool = new \Elastica\Query\BoolQuery();
+        $config = \Phalcon\Di::getDefault()->get('config');
 
-        $urlTerm = new \Elastica\Query\Term(['url' => $url]);
-        $typeTerm = new \Elastica\Query\Term(['type' => Urls::CONTENT]);
-        $bool->addMust($urlTerm)->addMust($typeTerm);
-        $query = new \Elastica\Query();
-        $query->setQuery($bool);
+        $query = [
+            'query' => [
+                'bool' => [
+                    'filter' => [
+                        ['term' => ['url' => $url]],
+                        ['term' => ['type' => Urls::CONTENT]]
+                    ]
+                ]
+            ]
+        ];
 
-        /** @var \Elastica\Type $type */
-        $type = \Phalcon\Di::getDefault()->get('elastica')->getIndex('owl')->getType('owl');
-        $content = $type->search($query)->current()->getSource()['content'];
+        $request = new Request('http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/_search');
+        $request->getOptions()
+            ->set(CURLOPT_POST, true)
+            ->set(CURLOPT_POSTFIELDS, json_encode($query))
+            ->set(CURLOPT_TIMEOUT, 8)
+            ->set(CURLOPT_RETURNTRANSFER, true);
+
+        $response = $request->send();
+        $content = json_decode($response->getContent(), true)['hits']['hits'][0]['_source']['content'];
 
 
 
 
 
+        $query = [
+            'query' => [
+                'bool' => [
+                    'filter' => [
+                        ['term' => ['url' => ' ']],
+                        ['term' => ['type' => Urls::COMMON]]
+                    ]
+                ]
+            ]
+        ];
 
+        $request->getOptions()->set(CURLOPT_POSTFIELDS, json_encode($query));
 
-        $bool = new \Elastica\Query\BoolQuery();
-
-        $urlTerm = new \Elastica\Query\Term(['url' => ' ']);
-        $typeTerm = new \Elastica\Query\Term(['type' => Urls::COMMON]);
-        $bool->addMust($urlTerm)->addMust($typeTerm);
-        $query = new \Elastica\Query();
-        $query->setQuery($bool);
-
-        /** @var \Elastica\Type $type */
-        $type = \Phalcon\Di::getDefault()->get('elastica')->getIndex('owl')->getType('owl');
-        $common = $type->search($query)->current()->getSource()['content'];
-
+        $response = $request->send();
+        $common = json_decode($response->getContent(), true)['hits']['hits'][0]['_source']['content'];
 
 
 
