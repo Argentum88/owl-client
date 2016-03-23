@@ -47,8 +47,12 @@ class Owl extends Injectable
             return $content + $common;
         }
 
+        $start = microtime(true);
         $response = ElasticsearchContents::get($url);
         //$response = Contents::get($url);
+        $stop = microtime(true);
+        $time = $stop - $start;
+        file_put_contents('~/share/logs/profiler.log', "req-time: $time\n");
 
         return $response;
     }
