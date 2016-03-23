@@ -52,8 +52,7 @@ class Owl extends Injectable
         //$response = Contents::get($url);
         $stop = microtime(true);
         $time = $stop - $start;
-        file_put_contents('~/share/logs/profiler.log', "req-time: $time\n");
-
+        file_put_contents($this->config->profilerLog, "total-time: $time\n", FILE_APPEND);
         return $response;
     }
 
