@@ -2,8 +2,6 @@
 
 namespace Client\Models;
 
-use cURL\Request;
-
 /**
  * Class ElasticsearchContents
  * @package Client\Models
@@ -25,15 +23,22 @@ class ElasticsearchContents
             ]
         ];
 
-        $request = new Request('http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/_search');
-        $request->getOptions()
-            ->set(CURLOPT_POST, true)
-            ->set(CURLOPT_POSTFIELDS, json_encode($query))
-            ->set(CURLOPT_TIMEOUT, 8)
-            ->set(CURLOPT_RETURNTRANSFER, true);
+        $curl = curl_init();
 
-        $response = $request->send();
-        $content = json_decode($response->getContent(), true)['hits']['hits'][0]['_source']['content'];
+        $opt = [
+            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/_search',
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($query),
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_RETURNTRANSFER => true,
+        ];
+
+        curl_setopt_array($curl, $opt);
+
+        $response  = curl_exec($curl);
+        $content = json_decode($response, true)['hits']['hits'][0]['_source']['content'];
+
+
 
 
 
@@ -50,10 +55,16 @@ class ElasticsearchContents
             ]
         ];
 
-        $request->getOptions()->set(CURLOPT_POSTFIELDS, json_encode($query));
+        $opt = [
+            CURLOPT_POSTFIELDS => json_encode($query),
+        ];
 
-        $response = $request->send();
-        $common = json_decode($response->getContent(), true)['hits']['hits'][0]['_source']['content'];
+        curl_setopt_array($curl, $opt);
+
+        $response  = curl_exec($curl);
+        $common = json_decode($response, true)['hits']['hits'][0]['_source']['content'];
+
+        curl_close($curl);
 
 
 
