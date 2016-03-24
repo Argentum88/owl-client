@@ -16,8 +16,9 @@ class ElasticsearchContents
             'query' => [
                 'bool' => [
                     'filter' => [
-                        ['term' => ['url' => $url]],
-                        ['term' => ['type' => Urls::CONTENT]]
+                        ['term' => ['_id' => Urls::CONTENT . '_' . $url]],
+                        //['term' => ['url' => $url]],
+                        //['term' => ['type' => Urls::CONTENT]]
                     ]
                 ]
             ]
@@ -48,8 +49,9 @@ class ElasticsearchContents
             'query' => [
                 'bool' => [
                     'filter' => [
-                        ['term' => ['url' => ' ']],
-                        ['term' => ['type' => Urls::COMMON]]
+                        ['term' => ['_id' => Urls::COMMON . '_' . ' ']],
+                        //['term' => ['url' => ' ']],
+                        //['term' => ['type' => Urls::COMMON]]
                     ]
                 ]
             ]
