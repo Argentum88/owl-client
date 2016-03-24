@@ -12,7 +12,7 @@ class ElasticsearchContents
     {
         $config = \Phalcon\Di::getDefault()->get('config');
 
-        $query = [
+        /*$query = [
             'query' => [
                 'bool' => [
                     'filter' => [
@@ -65,6 +65,35 @@ class ElasticsearchContents
 
         $response  = curl_exec($curl);
         $common = json_decode($response, true)['hits']['hits'][0]['_source']['content'];
+
+        curl_close($curl);*/
+
+
+
+
+
+
+        $curl = curl_init();
+
+        $opt = [
+            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/' . Urls::CONTENT . '_' . urlencode($url),
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_RETURNTRANSFER => true,
+        ];
+
+        curl_setopt_array($curl, $opt);
+
+        $response  = curl_exec($curl);
+        $content = json_decode($response, true)['_source']['content'];;
+
+        $opt = [
+            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/' . Urls::COMMON . '_' . '+',
+        ];
+
+        curl_setopt_array($curl, $opt);
+
+        $response  = curl_exec($curl);
+        $common = json_decode($response, true)['_source']['content'];;
 
         curl_close($curl);
 
