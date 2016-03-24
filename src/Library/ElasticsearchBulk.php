@@ -15,9 +15,14 @@ class ElasticsearchBulk extends Injectable
 
     protected $bufferSize;
 
-    public function __construct($bufferSize = 1000)
+    public function __construct($bufferSize = 500)
     {
         $this->bufferSize = $bufferSize;
+    }
+
+    public function __destruct()
+    {
+        $this->elastica->getIndex('owl')->refresh();
     }
 
     public function insert(array $row)
@@ -27,7 +32,7 @@ class ElasticsearchBulk extends Injectable
         $data['type'] = $row[4];
         $data['created_at'] = $row[5];
 
-        $doc = new \Elastica\Document('', $data);
+        $doc = new \Elastica\Document("{$data['type']}_{$data['url']}", $data);
 
         $this->putInBuffers($doc);
     }
