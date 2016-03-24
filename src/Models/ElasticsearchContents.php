@@ -76,7 +76,7 @@ class ElasticsearchContents
         $curl = curl_init();
 
         $opt = [
-            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/' . Urls::CONTENT . '_' . urlencode($url),
+            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/' . Urls::CONTENT . '_' . urlencode($url) . '?realtime=false',
             CURLOPT_TIMEOUT => 8,
             CURLOPT_RETURNTRANSFER => true,
         ];
@@ -87,7 +87,7 @@ class ElasticsearchContents
         $content = json_decode($response, true)['_source']['content'];;
 
         $opt = [
-            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/' . Urls::COMMON . '_' . '+',
+            CURLOPT_URL => 'http://' . $config->elasticsearch->connection->host . ':' . $config->elasticsearch->connection->port . '/owl/owl/' . Urls::COMMON . '_' . '+' . '?realtime=false',
         ];
 
         curl_setopt_array($curl, $opt);
