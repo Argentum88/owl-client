@@ -78,7 +78,7 @@ class FullFileStrategy extends BaseFileStrategy
             `type` tinyint(1) NOT NULL,
             `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`),
-            KEY `url` (`url`(100)),
+            KEY `url` (`url`(200)),
             KEY `created_at` (`created_at`)
           ) ENGINE=MyISAM DEFAULT CHARSET=utf8;"
         );
