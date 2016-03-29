@@ -2,7 +2,6 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
-use Client\Library\Bulk;
 use Client\Library\ContentSynchronizer\SynchronizableInterface;
 use Client\Models\Urls;
 use Client\Models\Contents;
@@ -11,7 +10,8 @@ class PartialFileStrategy extends BaseFileStrategy implements SynchronizableInte
 {
     public function __construct($file = null)
     {
-        $this->bulkContent = new Bulk('contents', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
+        $this->bulkContent = new Contents();
+        $this->bulkContent->init();
         parent::__construct($file);
     }
     
@@ -35,14 +35,14 @@ class PartialFileStrategy extends BaseFileStrategy implements SynchronizableInte
                 $data = json_decode($line, true);
 
                 if (($data['type'] == 'content' || $data['type'] == 'common') && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    $this->createContent($data);
+                    $this->bulkContent->insert($data);
                 } elseif (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] == 'delete') {
                     $url = !empty($data['url']) ? $data['url'] : ' ';
-                    $type = $this->typeMap[$data['type']];
-                    $this->createUrl($url, $type, Urls::FOR_DELETING);
+                    $type = Contents::$typeMap[$data['type']];
+                    $this->bulkUrl->insert($url, $type, Urls::FOR_DELETING);
                 } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
-                        $this->createUrl($data['url'], Urls::IMAGE);
+                        $this->bulkUrl->insert($data['url'], Urls::IMAGE);
                     }
                 } else {
                     $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");

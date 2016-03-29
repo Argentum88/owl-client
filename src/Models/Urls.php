@@ -2,7 +2,7 @@
 
 namespace Client\Models;
 
-class Urls extends \Phalcon\Mvc\Model
+class Urls extends Bulk
 {
     const OPEN  = 1;
     const LOCK  = 2;
@@ -32,5 +32,22 @@ class Urls extends \Phalcon\Mvc\Model
     public function beforeCreate()
     {
         $this->created_at = date(DATE_ISO8601);
+    }
+
+    public function init($table = 'urls', array $columns = ['url', 'state', 'type', 'action', 'created_at'], $bufferSize = 1000)
+    {
+        parent::init($table, $columns, $bufferSize);
+    }
+    
+    public function insert($url, $type = self::CONTENT, $action = self::FOR_PUT_WATERMARK)
+    {
+        $urls = [];
+        $urls[] = $url;
+        $urls[] = Urls::OPEN;
+        $urls[] = $type;
+        $urls[] = $action;
+        $urls[] = date(DATE_ISO8601);
+
+        parent::insert($urls);
     }
 }

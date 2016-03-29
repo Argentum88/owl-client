@@ -2,15 +2,16 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
-use Client\Library\Bulk;
 use Client\Library\ContentSynchronizer\SynchronizableInterface;
+use Client\Models\Contents;
 use Client\Models\Urls;
 
 class FullFileStrategy extends BaseFileStrategy implements SynchronizableInterface
 {
     public function __construct($file = null)
     {
-        $this->bulkContent = new Bulk('contents_new', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
+        $this->bulkContent = new Contents();
+        $this->bulkContent->init('contents_new');
         parent::__construct($file);
     }
 
@@ -32,10 +33,10 @@ class FullFileStrategy extends BaseFileStrategy implements SynchronizableInterfa
                 $data = json_decode($line, true);
 
                 if (($data['type'] == 'content' || $data['type'] == 'common') && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    $this->createContent($data);
+                    $this->bulkContent->insert($data);
                 } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
-                        $this->createUrl($data['url'], Urls::IMAGE);
+                        $this->bulkUrl->insert($data['url'], Urls::IMAGE);
                     }
                 } else {
                     $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");

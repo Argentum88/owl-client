@@ -2,37 +2,30 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
-use Client\Library\Bulk;
 use Client\Library\ContentSynchronizer\BannerUpdatableInterface;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
-use Client\Library\ContentSynchronizer\UrlCreatableInterface;
-use Client\Models\Urls;
 use Client\Models\Contents;
+use Client\Models\Urls;
 
-class BaseFileStrategy extends SynchronizerStrategy implements BannerUpdatableInterface, UrlCreatableInterface
+class BaseFileStrategy extends SynchronizerStrategy implements BannerUpdatableInterface
 {
-    protected $typeMap = [
-        'content' => Urls::CONTENT,
-        'image' => Urls::IMAGE,
-        'common' => Urls::COMMON
-    ];
-
     protected $file;
 
     /**
-     * @var Bulk
+     * @var Urls
      */
     protected $bulkUrl;
 
     /**
-     * @var Bulk
+     * @var Contents
      */
     protected $bulkContent;
 
     public function __construct($file = null)
     {
         $this->file = $file;
-        $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
+        $this->bulkUrl = new Urls();
+        $this->bulkUrl->init();
     }
 
     public function updateBanner()
@@ -67,32 +60,5 @@ class BaseFileStrategy extends SynchronizerStrategy implements BannerUpdatableIn
     {
         $banners = json_decode($data['content'][1], true);
         parent::createBanner($banners);
-    }
-
-    protected function createContent($data)
-    {
-        $decodedContent = !empty($data['content'][1]) ? json_decode($data['content'][1], true) : null;
-
-        $content = [];
-        $content[] = !empty($data['url']) ? $data['url'] : ' ';
-        $content[] = !empty($decodedContent['controller']) ? $decodedContent['controller'] : ' ';
-        $content[] = !empty($decodedContent['action']) ? $decodedContent['action'] : ' ';
-        $content[] = !empty($data['content'][1]) ? $data['content'][1] : ' ';
-        $content[] = $this->typeMap[$data['type']];
-        $content[] = date(DATE_ISO8601);
-
-        $this->bulkContent->insert($content);
-    }
-
-    public function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_PUT_WATERMARK)
-    {
-        $urls = [];
-        $urls[] = $url;
-        $urls[] = Urls::OPEN;
-        $urls[] = $type;
-        $urls[] = $action;
-        $urls[] = date(DATE_ISO8601);
-
-        $this->bulkUrl->insert($urls);
     }
 }

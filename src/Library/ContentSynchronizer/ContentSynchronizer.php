@@ -16,7 +16,7 @@ use RecursiveIteratorIterator;
 
 class ContentSynchronizer extends Injectable implements SynchronizableInterface
 {
-    /** @var SynchronizableInterface | UrlCreatableInterface | null */
+    /** @var SynchronizableInterface | null */
     protected $synchronizerStrategy;
 
     public function __construct(SynchronizerStrategy $synchronizerStrategy = null)
@@ -32,23 +32,16 @@ class ContentSynchronizer extends Injectable implements SynchronizableInterface
     public function fetchExistingImages()
     {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->config->imagesCacheDir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::LEAVES_ONLY);
-
-        $count = 0;
-        $this->db->begin();
+        $urls = new Urls();
+        $urls->init();
+        
         foreach($files as $file => $info){
-            $count++;
-            if ($count > 1000) {
-                $this->db->commit();
-                $this->db->begin();
-                $count = 1;
-                $this->log->info('применили транзакцию');
-            }
-
+            
             $url = str_replace($this->config->imagesCacheDir, '', $file);
-            $this->synchronizerStrategy->createUrl($url, Urls::IMAGE, Urls::FOR_REPLACE_WATERMARK);
+            $urls->insert($url, Urls::IMAGE, Urls::FOR_REPLACE_WATERMARK);
         }
-        $this->db->commit();
 
+        $urls->flash();
         Urls::find("url = '/favicon.ico'")->delete();
         Urls::find("url = '/.gitignore'")->delete();
     }

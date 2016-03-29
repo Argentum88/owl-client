@@ -55,7 +55,7 @@ class SyncTask extends Task
 
     public function fetchExistingImagesAction()
     {
-        (new ContentSynchronizer(new BaseFileStrategy()))->fetchExistingImages();
+        (new ContentSynchronizer())->fetchExistingImages();
     }
 
     public function updateBannerAction()

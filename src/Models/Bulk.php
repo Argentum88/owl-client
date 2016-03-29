@@ -1,10 +1,8 @@
 <?php
 
-namespace Client\Library;
+namespace Client\Models;
 
-use Phalcon\Di\Injectable;
-
-class Bulk extends Injectable
+class Bulk extends \Phalcon\Mvc\Model
 {
     protected $placeholderBuffer = [];
 
@@ -14,13 +12,28 @@ class Bulk extends Injectable
 
     protected $columns = [];
 
-    protected $bufferSize;
+    protected $bufferSize = 1000;
 
-    public function __construct($table, array $columns, $bufferSize = 1000)
+    public function setTable($table)
     {
         $this->table = $table;
+    }
+
+    public function setColumns(array $columns)
+    {
         $this->columns = $columns;
+    }
+
+    public function setBufferSize($bufferSize)
+    {
         $this->bufferSize = $bufferSize;
+    }
+
+    public function init($table, array $columns, $bufferSize = 1000)
+    {
+        $this->setTable($table);
+        $this->setColumns($columns);
+        $this->setBufferSize($bufferSize);
     }
 
     public function insert(array $row)
