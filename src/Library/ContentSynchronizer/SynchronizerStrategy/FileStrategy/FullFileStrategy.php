@@ -21,7 +21,7 @@ class FullFileStrategy extends BaseFileStrategy
     {
         $this->createNewTable();
         $this->handleFile();
-        $this->apply();
+        $this->switchTables();
         $this->nginxCacheClear();
     }
 
@@ -84,9 +84,11 @@ class FullFileStrategy extends BaseFileStrategy
         );
     }
 
-    protected function apply()
+    protected function switchTables()
     {
+        $this->log->info('Начали переключение версий');
         $this->db->execute("RENAME TABLE contents TO contents_old, contents_new TO contents;");
         $this->db->execute("DROP TABLE contents_old;");
+        $this->log->info('Переключили версии');
     }
 }

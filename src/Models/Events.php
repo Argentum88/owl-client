@@ -49,7 +49,8 @@ class Events extends \Phalcon\Mvc\Model
             throw new \Exception();
         }
 
-        exec("bzip2 -d $compressedFile");
+        exec("bzip2 -d -s $compressedFile");
+        $this->getDI()->get('log')->info('bziped');
         $uncompressedFile = $this->getDI()->get('config')->tempDir . "/$uniqid";
         return $uncompressedFile;
     }
