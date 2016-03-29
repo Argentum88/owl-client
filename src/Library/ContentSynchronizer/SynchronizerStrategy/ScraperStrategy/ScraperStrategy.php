@@ -2,11 +2,12 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\ScraperStrategy;
 
+use Client\Library\ContentSynchronizer\BannerUpdatableInterface;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
 use Client\Models\Owl;
 use cURL\Request;
 
-class ScraperStrategy extends SynchronizerStrategy
+class ScraperStrategy extends SynchronizerStrategy implements BannerUpdatableInterface
 {
     public function updateBanner()
     {

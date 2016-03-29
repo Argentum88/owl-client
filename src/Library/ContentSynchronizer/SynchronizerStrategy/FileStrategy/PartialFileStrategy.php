@@ -3,17 +3,15 @@
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\Bulk;
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
+use Client\Library\ContentSynchronizer\SynchronizableInterface;
 use Client\Models\Urls;
 use Client\Models\Contents;
 
-class PartialFileStrategy extends BaseFileStrategy
+class PartialFileStrategy extends BaseFileStrategy implements SynchronizableInterface
 {
     public function __construct($file = null)
     {
-        $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
         $this->bulkContent = new Bulk('contents', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
-        
         parent::__construct($file);
     }
     
@@ -25,7 +23,6 @@ class PartialFileStrategy extends BaseFileStrategy
         $this->deleteOldVersion($startUpdatingTime);
         $this->deleteContents();
         $this->nginxCacheClear();
-        $this->deleteImages();
     }
 
     protected function handleFile()
@@ -47,12 +44,6 @@ class PartialFileStrategy extends BaseFileStrategy
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE);
                     }
-                } elseif ($data['type'] == 'image' && $data['event'] == 'delete') {
-                    if (file_exists($this->config->imagesCacheDir . $data['url'])) {
-                        $this->createUrl($data['url'], Urls::IMAGE, Urls::FOR_DELETING);
-                    }
-                } elseif ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    $this->createBanner($data);
                 } else {
                     $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
                     continue;
@@ -127,26 +118,6 @@ class PartialFileStrategy extends BaseFileStrategy
             $contentsForDeleting->delete();
             $this->log->info("Удален контент url= . $url->url");
             $url->delete();
-        }
-    }
-
-    protected function deleteImages()
-    {
-        /** @var Urls[] $urls */
-        $urls = Urls::find(
-            [
-                'type = :type: AND action = :action:',
-                'bind' => [
-                    'type'   => Urls::IMAGE,
-                    'action' => Urls::FOR_DELETING
-                ]
-            ]
-        );
-
-        foreach ($urls as $url) {
-            unlink($this->config->imagesCacheDir . $url->url);
-            $url->delete();
-            $this->log->info("Удалена картинка url=" . $url->url);
         }
     }
 }

@@ -3,17 +3,14 @@
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\Bulk;
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
+use Client\Library\ContentSynchronizer\SynchronizableInterface;
 use Client\Models\Urls;
-use Client\Models\Contents;
 
-class FullFileStrategy extends BaseFileStrategy
+class FullFileStrategy extends BaseFileStrategy implements SynchronizableInterface
 {
     public function __construct($file = null)
     {
-        $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
         $this->bulkContent = new Bulk('contents_new', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
-
         parent::__construct($file);
     }
 
@@ -36,20 +33,10 @@ class FullFileStrategy extends BaseFileStrategy
 
                 if (($data['type'] == 'content' || $data['type'] == 'common') && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     $this->createContent($data);
-                } elseif (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] == 'delete') {
-                    $url = !empty($data['url']) ? $data['url'] : ' ';
-                    $type = $this->typeMap[$data['type']];
-                    $this->createUrl($url, $type, Urls::FOR_DELETING);
                 } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
                     if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
                         $this->createUrl($data['url'], Urls::IMAGE);
                     }
-                } elseif ($data['type'] == 'image' && $data['event'] == 'delete') {
-                    if (file_exists($this->config->imagesCacheDir . $data['url'])) {
-                        $this->createUrl($data['url'], Urls::IMAGE, Urls::FOR_DELETING);
-                    }
-                } elseif ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    $this->createBanner($data);
                 } else {
                     $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
                     continue;

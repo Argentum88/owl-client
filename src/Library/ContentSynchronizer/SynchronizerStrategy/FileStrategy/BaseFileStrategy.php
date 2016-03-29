@@ -3,11 +3,13 @@
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy;
 
 use Client\Library\Bulk;
+use Client\Library\ContentSynchronizer\BannerUpdatableInterface;
 use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy;
+use Client\Library\ContentSynchronizer\UrlCreatableInterface;
 use Client\Models\Urls;
 use Client\Models\Contents;
 
-class BaseFileStrategy extends SynchronizerStrategy
+class BaseFileStrategy extends SynchronizerStrategy implements BannerUpdatableInterface, UrlCreatableInterface
 {
     protected $typeMap = [
         'content' => Urls::CONTENT,
@@ -30,6 +32,7 @@ class BaseFileStrategy extends SynchronizerStrategy
     public function __construct($file = null)
     {
         $this->file = $file;
+        $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
     }
 
     public function updateBanner()

@@ -14,9 +14,9 @@ use Client\Models\Urls;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class ContentSynchronizer extends Injectable
+class ContentSynchronizer extends Injectable implements SynchronizableInterface
 {
-    /** @var SynchronizerStrategy|null */
+    /** @var SynchronizableInterface | UrlCreatableInterface | null */
     protected $synchronizerStrategy;
 
     public function __construct(SynchronizerStrategy $synchronizerStrategy = null)

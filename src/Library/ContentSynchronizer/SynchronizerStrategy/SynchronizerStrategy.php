@@ -2,8 +2,6 @@
 
 namespace Client\Library\ContentSynchronizer\SynchronizerStrategy;
 
-use Client\Models\Contents;
-use Client\Models\Urls;
 use Phalcon\Di\Injectable;
 
 class SynchronizerStrategy extends Injectable
