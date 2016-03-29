@@ -16,10 +16,10 @@ use RecursiveIteratorIterator;
 
 class ContentSynchronizer extends Injectable
 {
-    /** @var SynchronizerStrategy */
+    /** @var SynchronizerStrategy|null */
     protected $synchronizerStrategy;
 
-    public function __construct(SynchronizerStrategy $synchronizerStrategy)
+    public function __construct(SynchronizerStrategy $synchronizerStrategy = null)
     {
         $this->synchronizerStrategy = $synchronizerStrategy;
     }

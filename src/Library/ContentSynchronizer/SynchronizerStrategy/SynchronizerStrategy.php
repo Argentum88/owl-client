@@ -6,11 +6,8 @@ use Client\Models\Contents;
 use Client\Models\Urls;
 use Phalcon\Di\Injectable;
 
-abstract class SynchronizerStrategy extends Injectable
+class SynchronizerStrategy extends Injectable
 {
-    abstract public function updateContent();
-    abstract public function updateBanner();
-
     protected function createBanner($banners)
     {
         foreach ($banners['banners'] as $placeName => $place) {

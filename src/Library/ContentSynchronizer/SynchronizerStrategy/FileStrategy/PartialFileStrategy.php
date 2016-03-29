@@ -7,45 +7,25 @@ use Client\Library\ContentSynchronizer\SynchronizerStrategy\SynchronizerStrategy
 use Client\Models\Urls;
 use Client\Models\Contents;
 
-class FileStrategy extends SynchronizerStrategy
+class PartialFileStrategy extends BaseFileStrategy
 {
-    protected $typeMap = [
-        'content' => Urls::CONTENT,
-        'image' => Urls::IMAGE,
-        'common' => Urls::COMMON
-    ];
-
-    protected $file;
-
-    protected $fullUpdate = false;
-
-    protected $bulkUrl;
-
-    protected $bulkContent;
-
-    public function __construct($file = null, $fullUpdate = false)
+    public function __construct($file = null)
     {
-        $this->file = $file;
-        $this->fullUpdate = $fullUpdate;
-
         $this->bulkUrl = new Bulk('urls', ['url', 'state', 'type', 'action', 'created_at']);
         $this->bulkContent = new Bulk('contents', ['url', 'controller', 'action', 'content', 'type', 'created_at']);
+        
+        parent::__construct($file);
     }
-
+    
     public function updateContent()
     {
         $startUpdatingTime = date(DATE_ISO8601);
 
         $this->handleFile();
-        $this->deleteOldVersion($this->fullUpdate, $startUpdatingTime);
+        $this->deleteOldVersion($startUpdatingTime);
         $this->deleteContents();
         $this->nginxCacheClear();
         $this->deleteImages();
-    }
-
-    public function updateBanner()
-    {
-        $this->handleFile();
     }
 
     protected function handleFile()
@@ -88,42 +68,9 @@ class FileStrategy extends SynchronizerStrategy
             throw new \Exception("не удалось открыть файл");
         }
     }
-
-    protected function createBanner($data)
+    
+    protected function deleteOldVersion($startUpdatingTime)
     {
-        $banners = json_decode($data['content'][1], true);
-        parent::createBanner($banners);
-    }
-
-    protected function createContent($data)
-    {
-        $decodedContent = !empty($data['content'][1]) ? json_decode($data['content'][1], true) : null;
-
-        $content = [];
-        $content[] = !empty($data['url']) ? $data['url'] : ' ';
-        $content[] = !empty($decodedContent['controller']) ? $decodedContent['controller'] : ' ';
-        $content[] = !empty($decodedContent['action']) ? $decodedContent['action'] : ' ';
-        $content[] = !empty($data['content'][1]) ? $data['content'][1] : ' ';
-        $content[] = $this->typeMap[$data['type']];
-        $content[] = date(DATE_ISO8601);
-
-        $this->bulkContent->insert($content);
-    }
-
-    protected function deleteOldVersion($all = true, $startUpdatingTime)
-    {
-        if ($all) {
-            $this->log->info('Начали удаление старой версии');
-
-            do {
-                $result = $this->db->query("DELETE FROM contents WHERE created_at < ? LIMIT 1000", [$startUpdatingTime]);
-                usleep(1000); //неблокируем select
-            } while($result->numRows() > 0);
-
-            $this->log->info('Удалили старую версию');
-            return;
-        }
-
         $this->log->info('Начали удаление старой версии');
 
         /** @var Contents[] $contents */
@@ -150,18 +97,6 @@ class FileStrategy extends SynchronizerStrategy
         }
 
         $this->log->info('Удалили старую версию');
-    }
-
-    public function createUrl($url, $type = Urls::CONTENT, $action = Urls::FOR_PUT_WATERMARK)
-    {
-        $urls = [];
-        $urls[] = $url;
-        $urls[] = Urls::OPEN;
-        $urls[] = $type;
-        $urls[] = $action;
-        $urls[] = date(DATE_ISO8601);
-
-        $this->bulkUrl->insert($urls);
     }
 
     protected function deleteContents()

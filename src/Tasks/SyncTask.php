@@ -2,7 +2,9 @@
 
 namespace Client\Tasks;
 
-use Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy\FileStrategy;
+use Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy\BaseFileStrategy;
+use Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy\FullFileStrategy;
+use Client\Library\ContentSynchronizer\SynchronizerStrategy\FileStrategy\PartialFileStrategy;
 use Client\Models\Events;
 use Phalcon\CLI\Task;
 use Client\Library\ContentSynchronizer\ContentSynchronizer;
@@ -20,7 +22,14 @@ class SyncTask extends Task
     {
         $file = $params[3];
         $fullUpdate = $params[4];
-        (new ContentSynchronizer(new FileStrategy($file, $fullUpdate)))->updateContent();
+        
+        if ($fullUpdate) {
+            $strategy = new FullFileStrategy($file);
+        } else {
+            $strategy = new PartialFileStrategy($file);
+        }
+        
+        (new ContentSynchronizer($strategy))->updateContent();
     }
 
     public function updateBannerViaScraperAction()
@@ -31,22 +40,22 @@ class SyncTask extends Task
     public function updateBannerViaFileAction($params)
     {
         $file = $params[3];
-        (new ContentSynchronizer(new FileStrategy($file)))->updateBanner();
+        (new ContentSynchronizer(new BaseFileStrategy($file)))->updateBanner();
     }
 
     public function putWatermarkAction()
     {
-        (new ContentSynchronizer(new FileStrategy()))->putWatermark();
+        (new ContentSynchronizer())->putWatermark();
     }
 
     public function replaceWatermarkAction()
     {
-        (new ContentSynchronizer(new FileStrategy()))->replaceWatermark();
+        (new ContentSynchronizer())->replaceWatermark();
     }
 
     public function fetchExistingImagesAction()
     {
-        (new ContentSynchronizer(new FileStrategy()))->fetchExistingImages();
+        (new ContentSynchronizer(new BaseFileStrategy()))->fetchExistingImages();
     }
 
     public function updateBannerAction()
