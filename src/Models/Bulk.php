@@ -66,13 +66,13 @@ class Bulk extends \Phalcon\Mvc\Model
         $placeholders = implode(', ', $this->placeholderBuffer);
 
         try {
-            $this->db->execute("INSERT INTO {$this->table} ($columns) VALUES $placeholders", $this->rowBuffer);
+            $this->getDI()->get('db')->execute("INSERT INTO {$this->table} ($columns) VALUES $placeholders", $this->rowBuffer);
         } catch (\Exception $e) {
-            $this->log->error($e->getMessage());
+            $this->getDI()->get('log')->error($e->getMessage());
         }
 
         $this->placeholderBuffer = $this->rowBuffer = [];
 
-        $this->log->info('применили пачку');
+        $this->getDI()->get('log')->info('применили пачку');
     }
 }
