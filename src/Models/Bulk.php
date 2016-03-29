@@ -36,7 +36,7 @@ class Bulk extends \Phalcon\Mvc\Model
         $this->setBufferSize($bufferSize);
     }
 
-    public function insert(array $row)
+    public function insert($row)
     {
         $placeholder = '(' . rtrim(str_repeat('?,', count($row)), ',') . ')';
 
