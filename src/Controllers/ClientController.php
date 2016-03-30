@@ -55,6 +55,10 @@ class ClientController extends ControllerBase
         $this->view->disable();
 
         $patch = $this->request->getPost('patch');
+        if (!$patch) {
+            return $this->response->setStatusCode(406, 'Not Acceptable');
+        }
+
         $clear = $this->request->getPost('clear');
 
         if ($clear == 1) {
@@ -83,6 +87,9 @@ class ClientController extends ControllerBase
         $this->view->disable();
 
         $patch = $this->request->getPost('patch');
+        if (!$patch) {
+            return $this->response->setStatusCode(406, 'Not Acceptable');
+        }
 
         $event = new Events();
         $event->state = Events::OPEN;
