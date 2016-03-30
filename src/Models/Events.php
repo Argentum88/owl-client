@@ -41,18 +41,15 @@ class Events extends \Phalcon\Mvc\Model
 
         $handle = fopen($this->getDI()->get('config')->owl . $patch, 'r');
         if ($handle) {
-            file_put_contents($compressedFile, fopen($this->getDI()->get('config')->owl . $patch, 'r'));
+            file_put_contents($compressedFile, $handle);
         } else {
             $this->getDI()->get('log')->error("не удалось открыть файл " . $this->getDI()->get('config')->owl . $patch);
             $this->state = self::ERROR;
             $this->save();
             throw new \Exception();
         }
-
-        exec("bzip2 -d -s $compressedFile");
-        $this->getDI()->get('log')->info('bziped');
-        $uncompressedFile = $this->getDI()->get('config')->tempDir . "/$uniqid";
-        return $uncompressedFile;
+        
+        return $compressedFile;
     }
 
     /**

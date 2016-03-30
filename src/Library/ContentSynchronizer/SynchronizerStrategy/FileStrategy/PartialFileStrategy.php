@@ -27,37 +27,30 @@ class PartialFileStrategy extends BaseFileStrategy implements SynchronizableInte
 
     protected function handleFile()
     {
-        $handle = fopen($this->file, "r");
-        if ($handle) {
+        foreach ($this->getLines() as $line) {
 
-            while (($line = fgets($handle)) !== false) {
+            $data = json_decode($line, true);
 
-                $data = json_decode($line, true);
-
-                if (($data['type'] == 'content' || $data['type'] == 'common') && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    $this->bulkContent->insert($data);
-                } elseif (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] == 'delete') {
-                    $url = !empty($data['url']) ? $data['url'] : ' ';
-                    $type = Contents::$typeMap[$data['type']];
-                    $this->bulkUrl->insert($url, $type, Urls::FOR_DELETING);
-                } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
-                        $this->bulkUrl->insert($data['url'], Urls::IMAGE);
-                    }
-                } else {
-                    $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
-                    continue;
+            if (($data['type'] == 'content' || $data['type'] == 'common') && ($data['event'] == 'update' || $data['event'] == 'create')) {
+                $this->bulkContent->insert($data);
+            } elseif (($data['type'] == 'content' || $data['type'] == 'common') && $data['event'] == 'delete') {
+                $url = !empty($data['url']) ? $data['url'] : ' ';
+                $type = Contents::$typeMap[$data['type']];
+                $this->bulkUrl->insert($url, $type, Urls::FOR_DELETING);
+            } elseif ($data['type'] == 'image' && ($data['event'] == 'update' || $data['event'] == 'create')) {
+                if (!file_exists($this->config->imagesCacheDir . $data['url'])) {
+                    $this->bulkUrl->insert($data['url'], Urls::IMAGE);
                 }
-
-                usleep(200); //снижение нагрузки на cpu
+            } else {
+                $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
+                continue;
             }
 
-            fclose($handle);
-            $this->bulkContent->flash();
-            $this->bulkUrl->flash();
-        } else {
-            throw new \Exception("не удалось открыть файл");
+            usleep(200); //снижение нагрузки на cpu
         }
+
+        $this->bulkContent->flash();
+        $this->bulkUrl->flash();
     }
     
     protected function deleteOldVersion($startUpdatingTime)

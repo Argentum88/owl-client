@@ -35,22 +35,43 @@ class BaseFileStrategy extends SynchronizerStrategy implements BannerUpdatableIn
 
     protected function handleFile()
     {
-        $handle = fopen($this->file, "r");
-        if ($handle) {
+        foreach ($this->getLines() as $line) {
 
-            while (($line = fgets($handle)) !== false) {
+            $data = json_decode($line, true);
 
-                $data = json_decode($line, true);
-
-                if ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
-                    $this->createBanner($data);
-                } else {
-                    $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
-                    continue;
-                }
+            if ($data['type'] == 'banners' && ($data['event'] == 'update' || $data['event'] == 'create')) {
+                $this->createBanner($data);
+            } else {
+                $this->log->error("операция не поддерживается type={$data['type']} event={$data['event']} url={$data['url']}");
+                continue;
             }
+        }
+    }
 
-            fclose($handle);
+    protected function getLines()
+    {
+        $handle = bzopen($this->file, "r");
+        if ($handle) {
+            $decompressedData = '';
+            while (true) {
+
+                do {
+                    if (feof($handle)) {
+                        bzclose($handle);
+                        return;
+                    }
+
+                    $decompressedData .= bzread($handle, 8192);
+                    $key = strpos($decompressedData, "\n");
+                } while ($key == false);
+
+                do {
+                    $line = substr($decompressedData, 0, $key + 1);
+                    $decompressedData = substr_replace($decompressedData, '', 0, $key + 1);
+                    yield $line;
+                    $key = strpos($decompressedData, "\n");
+                } while ($key != false);
+            }
         } else {
             throw new \Exception("не удалось открыть файл");
         }
