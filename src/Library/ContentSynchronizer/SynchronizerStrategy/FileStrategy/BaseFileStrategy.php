@@ -63,14 +63,14 @@ class BaseFileStrategy extends SynchronizerStrategy implements BannerUpdatableIn
 
                     $decompressedData .= bzread($handle, 8192);
                     $key = strpos($decompressedData, "\n");
-                } while ($key == false);
+                } while ($key === false);
 
                 do {
                     $line = substr($decompressedData, 0, $key + 1);
                     $decompressedData = substr_replace($decompressedData, '', 0, $key + 1);
                     yield $line;
                     $key = strpos($decompressedData, "\n");
-                } while ($key != false);
+                } while ($key !== false);
             }
         } else {
             throw new \Exception("не удалось открыть файл");
