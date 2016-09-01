@@ -18,14 +18,16 @@ abstract class SynchronizerStrategy extends Injectable
                 $bodyContent =
                     '
 <?php
+    ob_start();
     $userAgent = isset($_SERVER[\'HTTP_USER_AGENT\']) ? $_SERVER[\'HTTP_USER_AGENT\'] : \'\';
 ?>
-
 <?php if (preg_match(\'%s\', $userAgent)): ?>
 %s
 <?php else: ?>
 %s
 <?php endif; ?>
+<?php
+echo trim(ob_get_clean());
 ';
 
                 $bodyContent = sprintf(
